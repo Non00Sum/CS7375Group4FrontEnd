@@ -1,0 +1,12 @@
+# Netlify build settings. In the Netlify UI set only: Base directory = app
+# (paths below are relative to that base directory)
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Vite 8 needs Node 20.19+ / 22.12+
+  NODE_VERSION = "22"
+
+# Supabase keys are NOT stored here: add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY
+# under Site configuration → Environment variables, then redeploy.
