@@ -12,6 +12,8 @@ npm run dev        # http://localhost:5173
 URL parameters:
 - `?pid=P01`: participant ID (random if omitted)
 - `?cond=0..3`: counterbalancing condition (Latin-square explanation order + trial rotation; hashed from pid if omitted)
+- `?mode=moderated|remote|online`: how the session is run (in person / video call / self-serve). Saved with the
+  session and shown as a `mode` column in the analysis views. Defaults to `online`.
 - `?stage=welcome|pre|tutorial|trials|post|done`: jump to a stage (for design review)
 - `?debug=1`: show pid, condition, and explanation order in the header
 

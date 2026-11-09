@@ -37,7 +37,7 @@ export default function App() {
         <span>Translation Explanation Study</span>
         {params.has('debug') && (
           <span className="muted small">
-            pid {session.pid} · condition {session.condition} · order {order.join(' → ')} · upload{' '}
+            pid {session.pid} · condition {session.condition} · mode {session.mode} · order {order.join(' → ')} · upload{' '}
             {sync.configured ? `${sync.pending} pending${sync.lastError ? ' (error)' : ''}` : 'off'}
           </span>
         )}
@@ -67,6 +67,7 @@ export default function App() {
             onClick={() => {
               const consentAt = Date.now();
               record('session_start', {
+                mode: session.mode,
                 startedAt: session.startedAt,
                 consent: consentAt,
                 userAgent: session.userAgent,

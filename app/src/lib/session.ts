@@ -1,4 +1,4 @@
-import type { ExplanationType, SessionRecord } from '../types';
+import type { ExplanationType, SessionMode, SessionRecord } from '../types';
 import { uuid } from './sync';
 
 export const EXPLANATION_TYPES: ExplanationType[] = ['backtranslation', 'rationale', 'qe', 'alignment'];
@@ -43,11 +43,19 @@ function hash(s: string): number {
 
 export const params = new URLSearchParams(window.location.search);
 
+const MODES: SessionMode[] = ['moderated', 'remote', 'online'];
+
+/** `?mode=moderated|remote|online`; anything else (or missing) counts as a self-serve online session. */
+export function parseMode(value: string | null): SessionMode {
+  const m = value?.toLowerCase() as SessionMode | undefined;
+  return m && MODES.includes(m) ? m : 'online';
+}
+
 export function initSession(): SessionRecord {
   const pid = params.get('pid') || `P-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
   const condParam = params.get('cond');
   const condition = condParam !== null ? Number(condParam) % NUM_CONDITIONS : hash(pid) % NUM_CONDITIONS;
-  return { sessionId: uuid(), pid, condition, startedAt: Date.now(), userAgent: navigator.userAgent, trials: [] };
+  return { sessionId: uuid(), pid, condition, mode: parseMode(params.get('mode')), startedAt: Date.now(), userAgent: navigator.userAgent, trials: [] };
 }
 
 const STORAGE_KEY = 'mt-study-session';

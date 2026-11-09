@@ -49,7 +49,9 @@ select
   min(client_ts)                                        as started_at,
   max(client_ts) filter (where kind = 'session_complete') as completed_at,
   count(*) filter (where kind = 'trial' and not coalesce((payload->>'tutorial')::boolean, false)) as trials_done,
-  bool_or(kind = 'session_complete')                    as completed
+  bool_or(kind = 'session_complete')                    as completed,
+  -- 'moderated' | 'remote' | 'online' (from ?mode=; sessions before this field existed show null)
+  min(payload->>'mode') filter (where kind = 'session_start') as mode
 from public.study_events
 group by session_id;
 
@@ -75,6 +77,8 @@ select
   e.payload->'rankings'->'decision_support'->>'justification'  as why_decision_support,
   e.payload->'tabViewMs'                                 as tab_view_ms,
   jsonb_array_length(coalesce(e.payload->'originalViews', '[]'::jsonb)) as original_views,
-  e.client_ts
+  e.client_ts,
+  s.payload->>'mode'                                     as mode
 from public.study_events e
+left join public.study_events s on s.session_id = e.session_id and s.kind = 'session_start'
 where e.kind = 'trial';

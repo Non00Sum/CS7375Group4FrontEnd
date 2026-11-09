@@ -87,10 +87,14 @@ export interface TrialResult {
 
 export type SurveyAnswers = Record<string, string | number | string[]>;
 
+/** How the session was run: researcher present in person, over video call, or self-serve link. */
+export type SessionMode = 'moderated' | 'remote' | 'online';
+
 export interface SessionRecord {
   sessionId: string;
   pid: string;
   condition: number;
+  mode: SessionMode;
   startedAt: number;
   userAgent: string;
   consent?: number;
