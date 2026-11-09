@@ -22,6 +22,13 @@ export function ExplanationPanel({ type, stimulus, tutorial }: Props) {
   const ex = stimulus.explanations;
   const target = stimulus.targetTokens.join(' ');
 
+  if (ex[type] === null)
+    return (
+      <div className="explanation">
+        <p className="pending">⏳ This explanation hasn't been generated for this document yet.</p>
+      </div>
+    );
+
   return (
     <div className="explanation">
       {tutorial && <p className="hint">💡 {TUTORIAL_HINTS[type]}</p>}
@@ -30,7 +37,7 @@ export function ExplanationPanel({ type, stimulus, tutorial }: Props) {
         <div>
           <h4>Round-trip translation</h4>
           <p className="doc-text">
-            {wordDiff(target, ex.backtranslation).map((p, i) =>
+            {wordDiff(target, ex.backtranslation!).map((p, i) =>
               p.kind === 'removed' ? null : (
                 <span key={i} className={p.kind === 'added' ? 'diff-added' : undefined}>
                   {p.text}{' '}
@@ -56,17 +63,17 @@ export function ExplanationPanel({ type, stimulus, tutorial }: Props) {
           <h4>Estimated translation quality</h4>
           <div className="qe-score">
             <div className="qe-bar">
-              <div className="qe-fill" style={{ width: `${ex.qe.score}%` }} />
+              <div className="qe-fill" style={{ width: `${ex.qe!.score}%` }} />
             </div>
-            <strong>{ex.qe.score}/100</strong>
+            <strong>{ex.qe!.score}/100</strong>
           </div>
           <p className="legend">
             Highlights in the translation above: <span className="tok qe-bad">likely error</span>{' '}
             <span className="tok qe-warn">uncertain</span> <span className="tok qe-ok">likely fine</span>
           </p>
-          {ex.qe.spans.some((s) => qeLevel(s.score) !== 'ok') && (
+          {ex.qe!.spans.some((s) => qeLevel(s.score) !== 'ok') && (
             <ul className="qe-list">
-              {ex.qe.spans
+              {ex.qe!.spans
                 .filter((s) => qeLevel(s.score) !== 'ok')
                 .map((s, i) => (
                   <li key={i}>

@@ -19,9 +19,13 @@ export function qeLevel(score: number): 'bad' | 'warn' | 'ok' {
 
 export function DocumentPane({ stimulus, overlay, onAlignmentHover, onViewOriginal }: Props) {
   const [hovered, setHovered] = useState<AlignLink[]>([]);
-  const links = stimulus.explanations.alignment;
-  const showAlign = overlay === 'alignment';
-  const showQE = overlay === 'qe';
+  const { alignment, qe } = stimulus.explanations;
+  const links = useMemo(() => alignment ?? [], [alignment]);
+  // Overlays only apply once that explanation exists (null = still pending).
+  const showAlign = overlay === 'alignment' && alignment !== null;
+  const showQE = overlay === 'qe' && qe !== null;
+  const srcBreaks = useMemo(() => new Set(stimulus.sourceBreaks), [stimulus.sourceBreaks]);
+  const tgtBreaks = useMemo(() => new Set(stimulus.targetBreaks), [stimulus.targetBreaks]);
 
   const aligned = useMemo(() => {
     const s = new Set<number>();
@@ -49,13 +53,14 @@ export function DocumentPane({ stimulus, overlay, onAlignmentHover, onViewOrigin
           </h3>
           {stimulus.original && onViewOriginal && (
             <button className="small" onClick={onViewOriginal} title="See the full original document with its layout and surrounding context">
-              ⤢ View full document{stimulus.original.kind === 'pdf' ? ' (PDF)' : ''}
+              ⤢ View original{stimulus.original.kind === 'pdf' ? ' (PDF)' : ''}
             </button>
           )}
         </div>
         <p className="doc-text source" lang="ko" onMouseLeave={() => setHovered([])}>
           {stimulus.sourceTokens.map((t, i) => (
             <Fragment key={i}>
+              {srcBreaks.has(i) && <span className="para-break" />}
               <span
                 className={`tok ${showAlign ? 'hoverable' : ''} ${showAlign && isHot('src', i) ? 'hot' : ''}`}
                 onMouseEnter={() => hover('src', i)}
@@ -72,7 +77,7 @@ export function DocumentPane({ stimulus, overlay, onAlignmentHover, onViewOrigin
         </h3>
         <p className="doc-text" onMouseLeave={() => setHovered([])}>
           {stimulus.targetTokens.map((t, i) => {
-            const span = showQE ? stimulus.explanations.qe.spans.find((s) => inRange(i, s.tgt)) : undefined;
+            const span = showQE ? qe!.spans.find((s) => inRange(i, s.tgt)) : undefined;
             const cls = ['tok'];
             if (span) cls.push(`qe-${qeLevel(span.score)}`);
             if (showAlign) {
@@ -87,6 +92,7 @@ export function DocumentPane({ stimulus, overlay, onAlignmentHover, onViewOrigin
                 : undefined;
             return (
               <Fragment key={i}>
+                {tgtBreaks.has(i) && <span className="para-break" />}
                 <span className={cls.join(' ')} title={title} onMouseEnter={() => hover('tgt', i)}>
                   {t}
                 </span>{' '}

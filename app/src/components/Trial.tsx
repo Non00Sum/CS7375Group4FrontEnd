@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type {
+  ComprehensionRecord,
   DecisionRecord,
   ExplanationType,
   OriginalViewRecord,
   RankingRecord,
   Stimulus,
   TrialResult,
+  TrialStep,
 } from '../types';
+import { ComprehensionQuestion } from './ComprehensionQuestion';
 import { OriginalViewer } from './OriginalViewer';
 import { LABELS, shuffle } from '../lib/session';
 import { DocumentPane } from './DocumentPane';
@@ -35,13 +38,21 @@ interface Props {
   onComplete: (r: TrialResult) => void;
 }
 
-type Step = 'baseline' | 'reveal' | 'rank';
+type Step = TrialStep;
+
+const STEP_LABELS: Record<Step, string> = {
+  baseline: 'First impression',
+  reveal: 'Explanations',
+  question: 'Question',
+  rank: 'Rank',
+};
 
 export function Trial({ stimulus, order, tutorial, progress, onComplete }: Props) {
   const labels = order.map((_, i) => LABELS[i]);
   const [step, setStep] = useState<Step>('baseline');
   const [baseline, setBaseline] = useState<DecisionRecord | null>(null);
   const [revised, setRevised] = useState<DecisionRecord | null>(null);
+  const [comprehension, setComprehension] = useState<ComprehensionRecord | null>(null);
   const [active, setActive] = useState<number | null>(null);
   const [viewed, setViewed] = useState<Set<number>>(new Set());
   // Each ranking list starts in an independent random order so the A–D display order doesn't anchor rankings.
@@ -107,11 +118,14 @@ export function Trial({ stimulus, order, tutorial, progress, onComplete }: Props
     }
     onComplete({
       stimulusId: stimulus.id,
+      version: stimulus.version,
+      stakes: stimulus.stakes,
       isFlawed: stimulus.isFlawed,
       tutorial: !!tutorial,
       explanationOrder: order,
       baseline: baseline!,
       revised: revised!,
+      comprehension: comprehension!,
       rankings: rankRecords,
       tabViewMs: { ...tabMs.current } as TrialResult['tabViewMs'],
       alignmentHovers: hovers,
@@ -129,20 +143,28 @@ export function Trial({ stimulus, order, tutorial, progress, onComplete }: Props
         <span className="muted">{progress}</span>
         <h2>{stimulus.title}</h2>
         <ol className="steps">
-          {(['baseline', 'reveal', 'rank'] as Step[]).map((s, i) => (
+          {(Object.keys(STEP_LABELS) as Step[]).map((s, i) => (
             <li key={s} className={s === step ? 'current' : ''}>
-              {i + 1}. {s === 'baseline' ? 'First impression' : s === 'reveal' ? 'Explanations' : 'Rank'}
+              {i + 1}. {STEP_LABELS[s]}
             </li>
           ))}
         </ol>
       </div>
 
+      <div className="scenario">
+        <strong>Your situation</strong>
+        <p>{stimulus.scenario}</p>
+        <p className="muted small">You can't read Korean, so you're relying on the machine translation.</p>
+      </div>
+
       {tutorial && step === 'baseline' && (
         <p className="hint">
-          💡 Practice round. Imagine you are staying at this hotel and rely on this translation. First, decide using
-          only the document and its translation. You can use “View full document” at any time to see the original
-          page in full; scroll, and zoom with the +/− buttons or Ctrl + scroll.
+          💡 Practice round. Read your situation above, then decide using only the notice and its translation. Use
+          “View original” at any time to see the notice itself; scroll, and zoom with the +/− buttons or Ctrl + scroll.
         </p>
+      )}
+      {tutorial && step === 'question' && (
+        <p className="hint">💡 Answer based on everything you've seen: the translation and the explanations.</p>
       )}
 
       <DocumentPane
@@ -198,6 +220,16 @@ export function Trial({ stimulus, order, tutorial, progress, onComplete }: Props
           disabledReason={`Please open every explanation first (${viewed.size}/${order.length} viewed).`}
           onSubmit={(r) => {
             setRevised(r);
+            setStep('question');
+          }}
+        />
+      )}
+
+      {step === 'question' && (
+        <ComprehensionQuestion
+          question={stimulus.keyQuestion}
+          onSubmit={(r) => {
+            setComprehension(r);
             setStep('rank');
           }}
         />

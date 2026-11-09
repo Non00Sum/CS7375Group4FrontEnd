@@ -10,7 +10,7 @@ interface Props {
   onZoom?: (zoom: number) => void;
 }
 
-const resolve = (src: string) => (/^(https?:)?\//.test(src) ? src : `${import.meta.env.BASE_URL}${src}`);
+const resolve = (src: string) => (/^((https?:)?\/|data:|blob:)/.test(src) ? src : `${import.meta.env.BASE_URL}${src}`);
 
 /** Modal viewer for the original (untranslated) document, as a PDF or a saved web page. */
 export function OriginalViewer({ doc, title, onClose, onZoom }: Props) {
@@ -77,9 +77,42 @@ export function OriginalViewer({ doc, title, onClose, onZoom }: Props) {
           <button onClick={onClose}>Close</button>
         </div>
         <div className="viewer-body" ref={bodyRef}>
-          {doc.kind === 'pdf' ? <PdfPages src={resolve(doc.src)} zoom={zoom} /> : <HtmlPage src={resolve(doc.src)} zoom={zoom} />}
+          {doc.kind === 'pdf' ? (
+            <PdfPages src={resolve(doc.src)} zoom={zoom} />
+          ) : doc.kind === 'image' ? (
+            <ImagePage src={resolve(doc.src)} zoom={zoom} />
+          ) : (
+            <HtmlPage src={resolve(doc.src)} zoom={zoom} />
+          )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** At 100% the whole image fits in the viewer (width and height); zoom scales from there. */
+function ImagePage({ src, zoom }: { src: string; zoom: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [aspect, setAspect] = useState<number | null>(null); // width / height
+  const [fit, setFit] = useState(0);
+  useEffect(() => {
+    const body = ref.current?.parentElement;
+    if (!body || !aspect) return;
+    const measure = () =>
+      setFit(Math.max(200, Math.min(body.clientWidth - 32, (body.clientHeight - 32) * aspect)));
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [aspect]);
+  return (
+    <div className="image-page" ref={ref}>
+      <img
+        src={src}
+        alt="Original document"
+        draggable={false}
+        onLoad={(e) => setAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight)}
+        style={fit ? { width: Math.round(fit * zoom), maxWidth: 'none' } : { maxWidth: '100%', visibility: 'hidden' }}
+      />
     </div>
   );
 }

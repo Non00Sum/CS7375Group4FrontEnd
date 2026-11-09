@@ -15,32 +15,55 @@ export interface AlignLink {
   tgt: TokenRange;
 }
 
-/** The original document as participants would encounter it (PDF or saved web page).
- *  `src` is relative to the site root (files live in public/documents/) or an absolute URL. */
+/** The original document as participants would encounter it.
+ *  `src` is a URL: an imported asset URL, a path under public/, or an absolute URL. */
 export interface OriginalDocument {
-  kind: 'pdf' | 'html';
+  kind: 'pdf' | 'html' | 'image';
   src: string;
 }
 
+/** Each notice has a correct and a deliberately flawed English translation. */
+export type TranslationVersion = 'correct' | 'flawed';
+
+/** `null` = not produced yet (shown as "pending"). */
+export interface StimulusExplanations {
+  backtranslation: string | null;
+  rationale: string | null;
+  qe: { score: number; spans: QESpan[] } | null;
+  alignment: AlignLink[] | null;
+}
+
+export interface KeyQuestion {
+  question: string;
+  /** Options; `key` says which reading each reflects. Never shown to participants. */
+  choices: { label: string; key: TranslationVersion }[];
+}
+
+/** One notice in one translation version, ready to render. */
 export interface Stimulus {
+  /** Notice id from notices.json (e.g. "p2_med"). */
   id: string;
+  version: TranslationVersion;
   stakes: 'low' | 'high';
+  setting: string;
   sourceLang: string;
   title: string;
-  /** Source text split into display tokens (Korean: eojeol / morpheme spans from the pipeline). */
+  /** The situation the participant imagines being in. */
+  scenario: string;
   sourceTokens: string[];
+  /** Token indices that start a new paragraph. */
+  sourceBreaks: number[];
   targetTokens: string[];
+  targetBreaks: number[];
   /** Optional full original for context; the tokens above remain the source of truth for the text. */
   original?: OriginalDocument;
   /** Ground truth for analysis only; never shown to participants. */
   isFlawed: boolean;
   flawNote?: string;
-  explanations: {
-    backtranslation: string;
-    rationale: string;
-    qe: { score: number; spans: QESpan[] };
-    alignment: AlignLink[];
-  };
+  keyQuestion: KeyQuestion;
+  explanations: StimulusExplanations;
+  /** True if the explanations are placeholder mock content. */
+  explanationsMock: boolean;
 }
 
 export type Decision = 'accept' | 'reject';
@@ -63,19 +86,37 @@ export interface RankingRecord {
   justification: string;
 }
 
+export type TrialStep = 'baseline' | 'reveal' | 'question' | 'rank';
+
 export interface OriginalViewRecord {
-  step: 'baseline' | 'reveal' | 'rank';
+  step: TrialStep;
   ms: number;
   maxZoom: number;
 }
 
+export interface ComprehensionRecord {
+  question: string;
+  /** Label chosen, or "unsure". */
+  choice: string;
+  /** Which reading the chosen option reflects: the true meaning, the flawed translation's, or unsure. */
+  answerKey: TranslationVersion | 'unsure';
+  /** answerKey === 'correct'. */
+  isRight: boolean;
+  /** Labels in the (shuffled) order shown. */
+  optionOrder: string[];
+  at: number;
+}
+
 export interface TrialResult {
   stimulusId: string;
+  version: TranslationVersion;
+  stakes: 'low' | 'high';
   isFlawed: boolean;
   tutorial: boolean;
   explanationOrder: ExplanationType[];
   baseline: DecisionRecord;
   revised: DecisionRecord;
+  comprehension: ComprehensionRecord;
   rankings: Record<string, RankingRecord>;
   tabViewMs: Record<ExplanationType, number>;
   alignmentHovers: number;

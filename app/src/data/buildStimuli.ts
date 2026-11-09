@@ -1,0 +1,189 @@
+/**
+ * Turns the data files in translation-experiment-data/ (notices.json + explanations.json) into the
+ * Stimulus objects the UI renders. Pure functions only (no Vite/browser APIs), so the same code runs in
+ * `npm run check-data` under plain Node.
+ *
+ * Spans in explanations.json are written as exact phrases copied from the text ("ko" / "en"), not
+ * offsets, so they are easy for people and agents to author. They are resolved to token ranges here.
+ */
+import type { AlignLink, QESpan, Stimulus, StimulusExplanations, TokenRange, TranslationVersion } from '../types';
+
+// ---------- Raw file formats (see translation-experiment-data/README.md) ----------
+
+export interface RawChoice {
+  label: string;
+  key: TranslationVersion;
+}
+
+export interface RawNotice {
+  id: string;
+  set: 'main' | 'backup' | string;
+  stakes: 'high' | 'low';
+  setting: string;
+  title_ko: string;
+  title_en: string;
+  image?: string;
+  korean: string;
+  english: Record<TranslationVersion, string>;
+  error: { type: string; korean_span: string; correct_span: string; flawed_span: string };
+  scenario: string;
+  key_question: {
+    question: string;
+    answer: string;
+    answer_if_trusting_flawed: string;
+    choices?: RawChoice[];
+  };
+}
+
+export interface RawNoticesFile {
+  about?: string;
+  documents: RawNotice[];
+}
+
+interface RawPhrase {
+  /** Exact phrase copied from the text. */
+  text: string;
+  /** 1-based; needed only if the phrase appears more than once. */
+  occurrence?: number;
+}
+
+export interface RawExplanationSet {
+  _mock?: boolean;
+  backtranslation?: string;
+  rationale?: string;
+  qe?: { score: number; spans: (RawPhrase & { score: number; note?: string })[] };
+  alignment?: { ko: string; en: string; ko_occurrence?: number; en_occurrence?: number }[];
+}
+
+export interface RawExplanationsFile {
+  about?: string;
+  explanations: Record<string, Partial<Record<TranslationVersion, RawExplanationSet>>>;
+}
+
+// ---------- Tokenizing ----------
+
+export interface Tokenized {
+  tokens: string[];
+  /** Character offset where each token starts. */
+  starts: number[];
+  /** Token indices that begin a new paragraph (blank line before them). */
+  breaks: number[];
+}
+
+export function tokenize(text: string): Tokenized {
+  const tokens: string[] = [];
+  const starts: number[] = [];
+  const breaks: number[] = [];
+  let lastEnd = 0;
+  for (const m of text.matchAll(/\S+/g)) {
+    const i = tokens.length;
+    if (i > 0 && /\n\s*\n/.test(text.slice(lastEnd, m.index))) breaks.push(i);
+    tokens.push(m[0]);
+    starts.push(m.index!);
+    lastEnd = m.index! + m[0].length;
+  }
+  return { tokens, starts, breaks };
+}
+
+/** Find a phrase and return the range of tokens it overlaps. Throws a descriptive error if it can't. */
+export function phraseToRange(t: Tokenized, text: string, phrase: string, occurrence?: number): TokenRange {
+  const hits: number[] = [];
+  for (let i = text.indexOf(phrase); i !== -1; i = text.indexOf(phrase, i + 1)) hits.push(i);
+  if (hits.length === 0) throw new Error(`phrase not found: "${phrase}"`);
+  if (hits.length > 1 && occurrence === undefined)
+    throw new Error(`phrase appears ${hits.length} times, add "occurrence": "${phrase}"`);
+  const at = hits[(occurrence ?? 1) - 1];
+  if (at === undefined) throw new Error(`occurrence ${occurrence} out of range (${hits.length} found): "${phrase}"`);
+  const end = at + phrase.length;
+  let s = -1;
+  let e = -1;
+  t.tokens.forEach((tok, i) => {
+    const ts = t.starts[i];
+    if (ts < end && ts + tok.length > at) {
+      if (s === -1) s = i;
+      e = i + 1;
+    }
+  });
+  return [s, e];
+}
+
+// ---------- Building ----------
+
+export const PENDING: StimulusExplanations = { backtranslation: null, rationale: null, qe: null, alignment: null };
+
+export interface BuildResult {
+  stimulus: Stimulus;
+  /** Data problems found while building (bad phrases etc). Offending items are skipped. */
+  problems: string[];
+}
+
+export function buildStimulus(
+  notice: RawNotice,
+  version: TranslationVersion,
+  raw: RawExplanationSet | undefined,
+  imageUrl?: string,
+): BuildResult {
+  const problems: string[] = [];
+  const where = `${notice.id}/${version}`;
+  const english = notice.english[version];
+  const src = tokenize(notice.korean);
+  const tgt = tokenize(english);
+
+  const ex: StimulusExplanations = { ...PENDING };
+  if (raw) {
+    ex.backtranslation = raw.backtranslation ?? null;
+    ex.rationale = raw.rationale ?? null;
+    if (raw.qe) {
+      const spans: QESpan[] = [];
+      for (const s of raw.qe.spans) {
+        try {
+          spans.push({ tgt: phraseToRange(tgt, english, s.text, s.occurrence), score: s.score, note: s.note });
+        } catch (e) {
+          problems.push(`${where} qe: ${(e as Error).message}`);
+        }
+      }
+      ex.qe = { score: raw.qe.score, spans };
+    }
+    if (raw.alignment) {
+      const links: AlignLink[] = [];
+      for (const a of raw.alignment) {
+        try {
+          links.push({
+            src: phraseToRange(src, notice.korean, a.ko, a.ko_occurrence),
+            tgt: phraseToRange(tgt, english, a.en, a.en_occurrence),
+          });
+        } catch (e) {
+          problems.push(`${where} alignment: ${(e as Error).message}`);
+        }
+      }
+      ex.alignment = links;
+    }
+  }
+
+  const choices = notice.key_question.choices ?? [];
+  if (!choices.some((c) => c.key === 'correct') || !choices.some((c) => c.key === 'flawed'))
+    problems.push(`${notice.id}: key_question.choices needs one "correct" and one "flawed" option`);
+
+  return {
+    problems,
+    stimulus: {
+      id: notice.id,
+      version,
+      stakes: notice.stakes,
+      setting: notice.setting,
+      sourceLang: 'Korean',
+      title: notice.title_en,
+      scenario: notice.scenario,
+      sourceTokens: src.tokens,
+      sourceBreaks: src.breaks,
+      targetTokens: tgt.tokens,
+      targetBreaks: tgt.breaks,
+      original: imageUrl ? { kind: 'image', src: imageUrl } : undefined,
+      isFlawed: version === 'flawed',
+      flawNote: version === 'flawed' ? `${notice.error.type}: ${notice.error.flawed_span}` : undefined,
+      keyQuestion: { question: notice.key_question.question, choices },
+      explanations: ex,
+      explanationsMock: Boolean(raw?._mock),
+    },
+  };
+}

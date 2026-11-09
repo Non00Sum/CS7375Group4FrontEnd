@@ -8,8 +8,9 @@ the source language.
 
 **Team:** Eric Buz Kuan
 
-> ⚠️ **Status: prototype with mock content.** The hotel documents, explanations, survey items and consent text
-> are placeholders for design review. See [Before running real participants](#before-running-real-participants).
+> ⚠️ **Status: real notices, mock explanations.** The notices, translations, scenarios and questions are the
+> team's study materials. Explanations are hand-written placeholders for 2 of the 4 main notices and missing
+> for the other 2. Survey items and consent text are drafts. See [Before running real participants](#before-running-real-participants).
 
 ---
 
@@ -18,7 +19,7 @@ the source language.
 - [Conditions and counterbalancing](#conditions-and-counterbalancing)
 - [Running sessions](#running-sessions)
 - [Data](#data)
-- [Adding real documents and explanations](#adding-real-documents-and-explanations)
+- [Study data](#study-data)
 - [Development and deployment](#development-and-deployment)
 - [Repository layout](#repository-layout)
 - [Open questions](#open-questions)
@@ -27,44 +28,61 @@ the source language.
 
 ## The study
 
-Participants read a short **Korean** document (currently hotel information, i.e. low stakes) with an
-**English machine translation**. Some translations contain plausible errors. Participants decide whether they'd
-accept the translation, look at several explanations of it, and rank those explanations. Most participants are
-US grad students who don't read Korean; the pre-survey asks about Korean proficiency so readers can be excluded.
+Participants imagine traveling in Korea. Each notice they see is a short **Korean** text from a pharmacy
+(**high stakes**) or a hotel (**low stakes**), shown with an **English machine translation** and a scenario
+("Your situation…"). Each notice exists in two versions: a **correct** translation and a **flawed** one with a
+single plausible, consequential error (a flipped "before/after", a dropped list item, a misread number…).
+Participants decide whether they'd accept the translation, look at several explanations of it, answer a
+question that only has the right answer if they caught the error, and rank the explanations. Most
+participants are US grad students who don't read Korean; the pre-survey asks about Korean proficiency so
+readers can be excluded.
+
+Mixing correct and flawed translations is what makes the decisions informative: with only correct
+translations, "I'd trust it without any explanation" would always be right and give no signal.
 
 ### Session flow
 
 ```
-Consent → Pre-survey → Practice document (with hints) → Documents ×N → Post-survey → Done
+Consent → Pre-survey → Practice notice (with hints) → 4 notices → Post-survey → Done
 ```
 
 | Step | What happens |
 |---|---|
 | **Consent** | Study info and an agreement checkbox (placeholder text). |
 | **Pre-survey** | First language, Korean proficiency, machine-translation use and trust (adapted from Ki et al.). |
-| **Practice** | One easy document; each explanation shows a hint on how to read it. |
-| **Documents** | Each goes through the three steps below. |
+| **Practice** | One backup notice (correct translation); each explanation shows a hint on how to read it. |
+| **Notices** | The 4 main notices (2 pharmacy, 2 hotel), each through the four steps below. |
 | **Post-survey** | Mental demand, helpfulness, future trust (Hoffman et al., 2019), plus open-ended questions. |
 | **Done** | Upload status, with a JSON download as a fallback. |
 
-### Each document: decide → reveal → rank
+### Each notice: decide → reveal → question → rank
 
-1. **First impression.** Korean original + English translation only → *Accept / Reject* + confidence (1–7).
+The scenario stays at the top throughout, and **View original** opens the notice image (scroll and zoom)
+at any step.
+
+1. **First impression.** Korean text + English translation only → *Accept / Reject* + confidence (1–7).
    This is the **no-explanation baseline**.
 2. **Explanations.** Four explanations appear as neutrally labeled tabs (*Explanation A–D*). All four must be
    opened, then the participant decides again (*Accept / Reject* + confidence).
-3. **Rank.** The participant ranks the explanations on two dimensions, each with a required written reason
+3. **Question.** The scenario's key question (e.g. *"Should you still be taking it on the following
+   Wednesday?"*), multiple choice: one option reflects the true meaning, one reflects the flawed
+   translation, plus *I'm not sure*. Options are shuffled.
+4. **Rank.** The participant ranks the explanations on two dimensions, each with a required written reason
    (at least 15 characters), adapted from Ehsan et al.'s comparative rankings:
    - how **easy to understand** each explanation was
    - how much each **helped them decide** whether to trust the translation
 
    Each list starts in a random order so the A–D order doesn't anchor rankings.
 
-At any step, **View full document** opens the original as a PDF or web page with scroll and zoom, for context.
+### What's measured
 
-Because each document has a known answer (correct or flawed), the before/after decisions measure
-**appropriate reliance**: did explanations help people reject bad translations and accept good ones? The
-rankings and justifications measure **stated preference** and supply the qualitative data.
+| Measure | From | Meaning |
+|---|---|---|
+| **Decision accuracy** | accept/reject before vs. after explanations | Did explanations help people reject flawed and accept correct translations? |
+| **Comprehension** | the key question | Did people end up with the right understanding, or act on the error? This is the most direct behavioral outcome. |
+| **Confidence** | 1–7 after each decision | Calibration: confident when right, unsure when wrong? |
+| **Preference** | rankings + written reasons | Which explanations people find understandable and useful, and why (the qualitative data). |
+| **Process** | tab view times, word-matching hovers, original-image views | How people used each explanation. |
 
 ### Explanation types
 
@@ -73,17 +91,18 @@ rankings and justifications measure **stated preference** and supply the qualita
 | **Round-trip translation** | The translation translated into Korean and back into English; wording that differs from the translation is highlighted. |
 | **Written explanation** | An LLM-generated paragraph on how well the translation matches the original. |
 | **Quality estimate** | An overall score (0–100) and the translation colored by how likely each part is to be wrong (likely error / uncertain / likely fine). |
-| **Word matching** | Hover a word in either document to highlight the corresponding words; translated words with no match get a dashed underline. |
+| **Word matching** | Hover a word in either text to highlight the corresponding words; English words with no match get a dashed underline. |
 
-All explanations are **precomputed** and stored with the documents, so every participant sees identical
+All explanations are **precomputed** (stored in `explanations.json`), so every participant sees identical
 stimuli and nothing calls a model at study time.
 
 ---
 
 ## Conditions and counterbalancing
 
-A condition (`cond` = 0–3) only sets **order**. Every participant sees all four explanation types on every
-document, so explanation type is compared within each participant.
+A condition (`cond` = 0–3) sets three things: the **explanation order**, the **notice order**, and **which notices
+get the flawed translation**. Every participant sees all four explanation types on all four notices, so
+explanation type is compared within each participant.
 
 **Explanation order (tabs A → D).** Balanced Latin square: across conditions each type appears in each position
 once and follows every other type once. A participant keeps the same order throughout their session.
@@ -95,18 +114,18 @@ once and follows every other type once. A participant keeps the same order throu
 | **2** | Quality estimate | Word matching | Written explanation | Round-trip translation |
 | **3** | Word matching | Round-trip translation | Quality estimate | Written explanation |
 
-**Document order.** The practice document always comes first; the rest rotate by condition. With the 3 mock
-documents:
+**Notices and versions** (✗ flawed translation, ✓ correct). The practice notice always comes first.
 
-| `cond` | 1st | 2nd | 3rd |
-|---|---|---|---|
-| **0** | Check-in (correct) | Parking (flawed) | Room rates (flawed) |
-| **1** | Parking (flawed) | Room rates (flawed) | Check-in (correct) |
-| **2** | Room rates (flawed) | Check-in (correct) | Parking (flawed) |
-| **3** | Check-in (correct) | Parking (flawed) | Room rates (flawed) |
+| `cond` | 1st | 2nd | 3rd | 4th |
+|---|---|---|---|---|
+| **0** | p2_med ✗ | p4_med ✓ | p1_hotel ✗ | p6_hotel ✓ |
+| **1** | p4_med ✗ | p1_hotel ✓ | p6_hotel ✗ | p2_med ✓ |
+| **2** | p1_hotel ✓ | p6_hotel ✗ | p2_med ✗ | p4_med ✓ |
+| **3** | p6_hotel ✓ | p2_med ✓ | p4_med ✗ | p1_hotel ✗ |
 
-With 3 documents and 4 conditions, conditions 0 and 3 share a document order. A multiple of 4 documents would
-balance it fully.
+Every participant gets **one flawed and one correct notice at each stakes level**, each notice is flawed in
+exactly half the conditions, and each notice appears in each position once. `npm run check-data` prints
+this table from the live configuration (`app/src/data/studyConfig.ts`).
 
 If `cond` is omitted, it's derived from the participant ID. For a real study, **assign it explicitly** and cycle
 0 → 1 → 2 → 3 across participants.
@@ -161,7 +180,7 @@ finished, so dropouts keep what they completed:
 |---|---|---|
 | `session_start` | after consent | mode, explanation order, document order, user agent |
 | `pre_survey` | after pre-survey | answers |
-| `trial` | after each document (incl. practice) | both decisions + confidence, rankings + justifications, tab view times, word-matching hovers, original-document views |
+| `trial` | after each notice (incl. practice) | notice id, version, stakes, both decisions + confidence, comprehension answer, rankings + justifications, tab view times, word-matching hovers, original-image views |
 | `post_survey` | after post-survey | answers |
 | `session_complete` | at the end | the full session record |
 
@@ -178,14 +197,19 @@ Supabase dashboard.
 
 ```sql
 select * from analysis.sessions;   -- one row per session: pid, condition, mode, trials done, completed?
-select * from analysis.trials;     -- one row per document: decisions, correct?, rankings, justifications, mode
+select * from analysis.trials;     -- one row per notice: version, stakes, decisions, comprehension, rankings, mode
 
--- e.g. did explanations improve decisions on flawed translations?
-select avg(baseline_correct::int) as before, avg(revised_correct::int) as after
-from analysis.trials where not tutorial and is_flawed;
+-- did explanations improve decisions, and did people end up understanding correctly?
+select stakes, version,
+       avg(baseline_correct::int)    as decided_right_before,
+       avg(revised_correct::int)     as decided_right_after,
+       avg(comprehension_right::int) as understood
+from analysis.trials where not tutorial
+group by stakes, version order by stakes, version;
 ```
 
-`*_correct` means the participant rejected a flawed translation or accepted a correct one. Exclude test runs
+`*_correct` means the participant rejected a flawed translation or accepted a correct one.
+`comprehension_answer` is `correct`, `flawed` (acted on the error) or `unsure`. Exclude test runs
 (e.g. `where pid not like 'TEST%'`) and participants who report reading Korean. The `analysis` schema isn't
 reachable through the public API.
 
@@ -194,23 +218,27 @@ The schema is in [`app/supabase/schema.sql`](app/supabase/schema.sql); it's safe
 
 ---
 
-## Adding real documents and explanations
+## Study data
 
-Documents live in [`app/src/data/stimuli.ts`](app/src/data/stimuli.ts); the format is `Stimulus` in
-[`app/src/types.ts`](app/src/types.ts). Each document needs:
+All study content lives in [`app/translation-experiment-data/`](app/translation-experiment-data/), and the
+app reads it directly:
 
-| Field | Source | Notes |
+| File | Owner | Contents |
 |---|---|---|
-| `sourceTokens` / `targetTokens` | Eric | Korean and English text split into display tokens. Word matching and quality highlights point at token positions, so Korean needs sensible word or phrase units, not single characters. |
-| `isFlawed`, `flawNote` | Eric | Ground truth, never shown to participants. |
-| `explanations.backtranslation` | Kuan | Plain text. |
-| `explanations.rationale` | Kuan | Plain text. |
-| `explanations.qe` | Kuan | `score` (0–100) and `spans: [{ tgt: [start, end), score: 0–1, note? }]`. |
-| `explanations.alignment` | Kuan | `[{ src: [start, end), tgt: [start, end) }]` token ranges. |
-| `original` (optional) | Eric | `{ kind: 'pdf' \| 'html', src: 'documents/<file>' }`, with the file in `app/public/documents/`. |
+| `notices.json` | Eric | Korean text, correct + flawed English, error description, scenario, key question with answer choices |
+| `explanations.json` | Kuan | Explanations per notice **and version**; phrases copied from the texts, not offsets |
+| `images/` | Eric | The notices as images, for "View original" |
 
-The mock data is written as phrases (e.g. `['조식은', 'Breakfast']`) and converted to token ranges by a helper
-in `stimuli.ts`, which is convenient for hand-authoring. Pipeline output can supply token ranges directly.
+The full format is in [`app/translation-experiment-data/README.md`](app/translation-experiment-data/README.md).
+After editing, run `cd app && npm run check-data`. It validates every phrase and id and prints explanation
+coverage and the condition table. Which notices are main, backup or practice is set in
+[`app/src/data/studyConfig.ts`](app/src/data/studyConfig.ts).
+
+**Current explanation coverage:** mock explanations for `p1_hotel`, `p2_med` (both versions) and `p3_hotel`
+(practice). `p4_med` and `p6_hotel` show "not generated yet". The mocks are deliberately imperfect
+(round-trip repeats the error, one written explanation misses it, the quality estimate has a false alarm),
+but they are **not** real model output.
+
 Survey items are in [`app/src/data/surveys.ts`](app/src/data/surveys.ts).
 
 ---
@@ -221,11 +249,12 @@ Survey items are in [`app/src/data/surveys.ts`](app/src/data/surveys.ts).
 cd app
 npm install
 npm run dev          # http://localhost:5173  (add ?debug=1)
+npm run check-data   # validate translation-experiment-data/
 npm run build        # type-check + production build into app/dist
 ```
 
-Stack: React 19 + TypeScript + Vite, `@dnd-kit` for drag-to-rank, `pdfjs-dist` for PDFs, Supabase REST for
-storage (no SDK). Requires Node 20.19+ / 22.12+.
+Stack: React 19 + TypeScript + Vite, `@dnd-kit` for drag-to-rank, `pdfjs-dist` for PDF originals, Supabase
+REST for storage (no SDK). Requires Node 20.19+ / 22.12+. `npm run check-data` validates the study data.
 
 **Deployment.** Netlify builds from this repo on every push to the deployed branch. Settings: **Base
 directory** = `app`; build command and publish directory come from [`app/netlify.toml`](app/netlify.toml).
@@ -242,19 +271,25 @@ session.
 
 ```
 ├── README.md                    ← this file
+├── AGENTS.md                    commands and rules for coding agents
 ├── project_meterial/            course project description and our planning doc
 └── app/
-    ├── README.md                developer notes (setup, Supabase, document viewer)
+    ├── README.md                developer notes (setup, Supabase, viewer)
     ├── netlify.toml             build settings
     ├── supabase/schema.sql      table, access rules, analysis views
-    ├── public/documents/        original documents (PDF / HTML) for "View full document"
+    ├── translation-experiment-data/
+    │   ├── notices.json         notices, translations, scenarios, questions
+    │   ├── explanations.json    precomputed explanations (currently partly MOCK)
+    │   └── images/              notice images for "View original"
+    ├── scripts/check-data.ts    data validator (npm run check-data)
     └── src/
         ├── App.tsx              session flow and event recording
         ├── types.ts             data formats (Stimulus, TrialResult, SessionRecord)
-        ├── data/                stimuli.ts (MOCK) · surveys.ts (DRAFT)
+        ├── data/                studyConfig.ts (which notices, counterbalancing) · study.ts (loader)
+        │                        buildStimuli.ts (JSON → stimuli) · surveys.ts (DRAFT)
         ├── lib/                 session.ts (conditions, IDs) · sync.ts (upload queue) · diff.ts
-        └── components/          Trial, DocumentPane, ExplanationPanel, RankList,
-                                 DecisionForm, Survey, OriginalViewer
+        └── components/          Trial, DocumentPane, ExplanationPanel, ComprehensionQuestion,
+                                 RankList, DecisionForm, Survey, OriginalViewer
 ```
 
 ---
@@ -262,7 +297,8 @@ session.
 ## Before running real participants
 
 - [ ] Replace the consent placeholder (`app/src/App.tsx`, Welcome screen)
-- [ ] Replace mock documents and explanations (`app/src/data/stimuli.ts`, `app/public/documents/`)
+- [ ] Real explanations for all 4 main notices × 2 versions + the practice notice (`explanations.json`)
+- [ ] `npm run check-data` passes with no "pending" or "(mock)" in the coverage table
 - [ ] Finalize survey items (`app/src/data/surveys.ts`)
 - [ ] Re-run `app/supabase/schema.sql` if it changed
 - [ ] Pilot with 1–2 people on the live site; check the session length (target 30–45 min)
@@ -274,10 +310,12 @@ session.
 ## Open questions
 
 - **Round-trip translation.** The translation is already in English, so English → Korean → English never checks
-  the Korean source and can repeat errors (the mock parking document shows this). Keep it, replace it with an
+  the Korean source and can repeat errors (the mocks show this). Keep it, replace it with an
   independent second translation, or drop it?
-- **Stakes.** All current documents are low stakes. Adding the medical (high-stakes) documents means choosing
-  between stakes as a between-participants condition or a mix within each session.
+- **Order effects of errors.** Each participant sees 2 flawed translations out of 4. After catching one,
+  people may grow more suspicious; the rotation spreads this across notices but doesn't remove it.
+- **The question reveals the stakes of the error.** The key question points at exactly the phrase that's
+  flawed, which may prompt people to re-check it. That's why it comes after both decisions.
 - **Typed reasons in moderated sessions.** Think-aloud participants say their reasons, so the 15-character
   typed minimum duplicates effort. Relaxing it for `mode=moderated` would make moderated and online data less
   comparable.

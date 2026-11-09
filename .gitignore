@@ -1,0 +1,3 @@
+# Participant data downloads from the study site
+session-*.json
+.DS_Store

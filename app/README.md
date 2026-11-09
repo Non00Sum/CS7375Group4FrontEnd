@@ -1,12 +1,14 @@
 # Translation Explanation Study — Front End
 
-Prototype UI for the CS 7375 HCXAI project. Participants read a Korean hotel document with an English
-machine translation, make an accept/reject decision, then view and rank explanation methods.
+Developer notes. For the study design see the [root README](../README.md); for the data format see
+[`translation-experiment-data/README.md`](translation-experiment-data/README.md).
 
 ## Run
 ```bash
 npm install
-npm run dev        # http://localhost:5173
+npm run dev          # http://localhost:5173
+npm run check-data   # validate translation-experiment-data/ (run after every data edit)
+npm run build        # type-check + production build
 ```
 
 URL parameters:
@@ -18,17 +20,22 @@ URL parameters:
 - `?debug=1`: show pid, condition, and explanation order in the header
 
 ## Flow
-Consent → pre-survey → practice trial (with hints) → trials → post-survey → done (upload + JSON download).
-Each trial: **baseline decision** (translation only) → **reveal** explanations as neutral tabs A–D (all must be opened)
-→ **revised decision** → **rank** on two dimensions with required justifications.
+Consent → pre-survey → practice notice (with hints) → 4 notices → post-survey → done (upload + JSON download).
+Each notice: **baseline decision** (translation only) → **reveal** explanations as neutral tabs A–D (all must be opened)
+→ **revised decision** → **comprehension question** (multiple choice) → **rank** on two dimensions with required
+justifications. The scenario is shown throughout.
 
 ## Where things live
-- `src/data/stimuli.ts`: **mock** stimuli (replace with curated data + precomputed explanations)
+- `translation-experiment-data/`: **all study content** (notices.json, explanations.json, images/)
+- `src/data/studyConfig.ts`: main set, practice notice, version counterbalancing (pure; used by check-data too)
+- `src/data/buildStimuli.ts`: JSON → `Stimulus` (tokenizing, resolving phrases to token ranges)
+- `src/data/study.ts`: Vite loader (imports the JSON and images) and per-condition stimulus list
 - `src/data/surveys.ts`: draft survey items
-- `src/types.ts`: data contract (`Stimulus`, `TrialResult`, `SessionRecord`)
-- `src/components/DocumentPane.tsx`: source/translation, QE highlights, and alignment hover overlays
-- `src/components/ExplanationPanel.tsx`: per-explanation renderers
-- `src/lib/session.ts`: counterbalancing, local save, Supabase upload, JSON download
+- `src/types.ts`: data formats (`Stimulus`, `TrialResult`, `SessionRecord`)
+- `src/components/`: `Trial` (step flow), `DocumentPane` (texts + QE / alignment overlays), `ExplanationPanel`,
+  `ComprehensionQuestion`, `RankList`, `DecisionForm`, `Survey`, `OriginalViewer`
+- `src/lib/session.ts`: conditions, IDs, local save, JSON download · `src/lib/sync.ts`: Supabase upload queue
+- `scripts/check-data.ts`: data validator
 
 ## Saving data (Supabase)
 Every step is uploaded as soon as it's finished (`session_start`, `pre_survey`, each `trial` including practice,
@@ -54,13 +61,9 @@ select * from analysis.sessions;  -- one row per session: progress, completed?
 select * from analysis.trials;    -- one row per trial: decisions, correctness, rankings, justifications
 ```
 
-## Original documents (PDF / web page)
-Each stimulus can include `original: { kind: 'pdf' | 'html', src: 'documents/<file>' }`. Put files in
-`public/documents/`. Participants open them with **View full document**, a modal viewer that scrolls and zooms
-(+/− buttons, Ctrl/Cmd +/−, or Ctrl + scroll / pinch). PDFs are drawn with pdf.js, so they look the same in every
-browser. HTML pages load in a same-origin iframe, so save pages locally rather than linking to live sites.
-The viewer is display-only: `sourceTokens` stays the source of truth for the text, so no OCR is needed.
-Each open is logged per trial as `originalViews: [{ step, ms, maxZoom }]`.
-
-The mock PDF was made from its HTML page with:
-`"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --no-pdf-header-footer --print-to-pdf=public/documents/hotel-checkin.pdf public/documents/hotel-checkin.html`
+## Original documents ("View original")
+Each notice's `image` in notices.json is bundled by Vite and opened in a modal viewer that scrolls and zooms
+(+/− buttons, Ctrl/Cmd +/−, or Ctrl + scroll / pinch). At 100% the whole image fits the viewer. The viewer also
+supports PDFs (drawn with pdf.js) and saved HTML pages (same-origin iframe) via `original.kind`, though the
+current data only uses images. The viewer is display-only: the Korean text comes from notices.json, so no OCR is
+needed. Each open is logged per trial as `originalViews: [{ step, ms, maxZoom }]`.

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { SessionRecord, TrialResult } from './types';
-import { practiceStimulus, trialStimuli } from './data/stimuli';
+import { practiceStimulus, stimuliForCondition } from './data/study';
 import { preSurvey, postSurvey } from './data/surveys';
-import { downloadJSON, explanationOrder, initSession, params, rotate, saveLocal } from './lib/session';
+import { downloadJSON, explanationOrder, initSession, params, saveLocal } from './lib/session';
 import { flush, recordEvent, useSyncStatus, type EventKind } from './lib/sync';
 import { Trial } from './components/Trial';
 import { Survey } from './components/Survey';
@@ -19,7 +19,7 @@ export default function App() {
   const sync = useSyncStatus();
 
   const order = useMemo(() => explanationOrder(session.condition), [session.condition]);
-  const trials = useMemo(() => rotate(trialStimuli, session.condition), [session.condition]);
+  const trials = useMemo(() => stimuliForCondition(session.condition), [session.condition]);
 
   useEffect(() => saveLocal(session), [session]);
   useEffect(() => window.scrollTo({ top: 0 }), [stage, trialIdx]);
@@ -37,7 +37,8 @@ export default function App() {
         <span>Translation Explanation Study</span>
         {params.has('debug') && (
           <span className="muted small">
-            pid {session.pid} · condition {session.condition} · mode {session.mode} · order {order.join(' → ')} · upload{' '}
+            pid {session.pid} · condition {session.condition} · mode {session.mode} · docs{' '}
+            {trials.map((t) => `${t.id}${t.version === 'flawed' ? '✗' : '✓'}`).join(' ')} · order {order.join(' → ')} · upload{' '}
             {sync.configured ? `${sync.pending} pending${sync.lastError ? ' (error)' : ''}` : 'off'}
           </span>
         )}
@@ -47,12 +48,14 @@ export default function App() {
         <div className="card">
           <h1>Welcome</h1>
           <p>
-            In this study you will read short hotel documents written in <strong>Korean</strong>, along with an English
-            translation produced by a machine translation system. Some translations may contain errors.
+            In this study you will imagine you're traveling in Korea. You'll see short notices from hotels and
+            pharmacies written in <strong>Korean</strong>, each with an English translation produced by a machine
+            translation system. Some translations may contain errors.
           </p>
           <p>
-            For each document you will decide whether you would accept the translation, look at several different
-            explanations of it, and then rank those explanations. The study takes about 30 minutes.
+            For each notice you'll decide whether you would accept the translation, look at several different
+            explanations of it, answer a question about your situation, and rank the explanations. The study takes
+            about 30 minutes.
           </p>
           <p className="muted small">
             [Placeholder consent text: purpose, voluntary participation, data handling, contact information.]
@@ -72,7 +75,7 @@ export default function App() {
                 consent: consentAt,
                 userAgent: session.userAgent,
                 explanationOrder: order,
-                trialOrder: trials.map((t) => t.id),
+                trialOrder: trials.map((t) => `${t.id}:${t.version}`),
               });
               setSession((s) => ({ ...s, consent: consentAt }));
               setStage('pre');

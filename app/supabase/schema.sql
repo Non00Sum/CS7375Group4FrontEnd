@@ -78,7 +78,13 @@ select
   e.payload->'tabViewMs'                                 as tab_view_ms,
   jsonb_array_length(coalesce(e.payload->'originalViews', '[]'::jsonb)) as original_views,
   e.client_ts,
-  s.payload->>'mode'                                     as mode
+  s.payload->>'mode'                                     as mode,
+  -- added with the notices.json data (null for earlier sessions); new columns must stay at the end
+  e.payload->>'version'                                  as version,          -- 'correct' | 'flawed'
+  e.payload->>'stakes'                                   as stakes,           -- 'high' | 'low'
+  e.payload->'comprehension'->>'choice'                  as comprehension_choice,
+  e.payload->'comprehension'->>'answerKey'               as comprehension_answer, -- 'correct' | 'flawed' | 'unsure'
+  (e.payload->'comprehension'->>'isRight')::boolean      as comprehension_right
 from public.study_events e
 left join public.study_events s on s.session_id = e.session_id and s.kind = 'session_start'
 where e.kind = 'trial';

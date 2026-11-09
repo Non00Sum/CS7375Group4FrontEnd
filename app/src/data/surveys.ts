@@ -38,5 +38,5 @@ export const postSurvey: Question[] = [
   { id: 'future_trust', type: 'likert', label: 'If a translation tool showed these explanations, how much would you trust it in the future?', low: 'Not at all', high: 'Completely' },
   { id: 'most_useful', type: 'text', long: true, label: 'Which kind of explanation was most useful to you, and why?' },
   { id: 'missing', type: 'text', long: true, label: 'What information was missing that would have helped you decide?' },
-  { id: 'high_stakes', type: 'text', long: true, label: 'Would your preferences change if the document were medical instructions rather than hotel information? How?' },
+  { id: 'stakes', type: 'text', long: true, label: 'Did you judge the translations or use the explanations differently for the pharmacy notices than for the hotel notices? How?' },
 ];

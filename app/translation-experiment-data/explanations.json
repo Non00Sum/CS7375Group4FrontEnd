@@ -1,0 +1,546 @@
+{
+  "about": "Precomputed explanations per notice id and translation version (\"correct\" / \"flawed\"). Phrases (qe.spans[].text, alignment[].ko / .en) must be copied exactly from the Korean text or the matching English translation in notices.json; add \"occurrence\" (1-based) if a phrase appears more than once. Missing notices, versions or fields show as 'pending' in the app. Run `npm run check-data` after editing. Entries with \"_mock\": true are placeholders written by hand for UI testing, NOT real model output.",
+  "explanations": {
+    "p1_hotel": {
+      "correct": {
+        "_mock": true,
+        "backtranslation": "Check-in begins at 3 p.m. and check-out is by 11 a.m. Please make sure to shower before going into the pool. The pool is on the fourth floor and is open from 7 a.m. to 9 p.m. Breakfast is served at the restaurant on the third floor from 7 a.m. to 10 a.m.\n\nPlease return your room key to the first-floor front desk when you check out. The Wi-Fi password is written on the card on the desk in your room. If you have any questions, please call the front desk at any time.",
+        "rationale": "The translation is accurate. Times (check-in 3 p.m., check-out 11 a.m., pool 7 a.m.–9 p.m., breakfast 7–10 a.m.) and floors (pool on 4, restaurant on 3, front desk on 1) match the source. The pool rule correctly says to shower before entering (\"들어가시기 전에\" = before entering).",
+        "qe": {
+          "score": 91,
+          "spans": [
+            {
+              "text": "Check-in starts at 3 p.m.",
+              "score": 0.95
+            },
+            {
+              "text": "Please be sure to shower before entering the pool.",
+              "score": 0.88
+            },
+            {
+              "text": "The pool is on the fourth floor",
+              "score": 0.93
+            },
+            {
+              "text": "Breakfast is served in the third-floor restaurant",
+              "score": 0.9
+            },
+            {
+              "text": "feel free to call the front desk at any time.",
+              "score": 0.64,
+              "note": "Wording differs from the source"
+            }
+          ]
+        },
+        "alignment": [
+          {
+            "ko": "체크인은 오후 세 시부터",
+            "en": "Check-in starts at 3 p.m."
+          },
+          {
+            "ko": "체크아웃은 오전 열한 시까지입니다",
+            "en": "check-out is by 11 a.m."
+          },
+          {
+            "ko": "꼭 샤워를 해 주세요",
+            "en": "Please be sure to shower"
+          },
+          {
+            "ko": "수영장은 사 층에 있으며",
+            "en": "The pool is on the fourth floor"
+          },
+          {
+            "ko": "오전 일곱 시부터 밤 아홉 시까지",
+            "en": "from 7 a.m. to 9 p.m."
+          },
+          {
+            "ko": "이용하실 수 있습니다",
+            "en": "is open"
+          },
+          {
+            "ko": "조식은",
+            "en": "Breakfast"
+          },
+          {
+            "ko": "삼 층 식당에서",
+            "en": "in the third-floor restaurant"
+          },
+          {
+            "ko": "오전 일곱 시부터 열 시까지",
+            "en": "from 7 a.m. to 10 a.m."
+          },
+          {
+            "ko": "제공됩니다",
+            "en": "is served"
+          },
+          {
+            "ko": "객실 열쇠는",
+            "en": "your room key"
+          },
+          {
+            "ko": "체크아웃하실 때",
+            "en": "when you check out"
+          },
+          {
+            "ko": "일 층 프런트에",
+            "en": "to the front desk on the first floor"
+          },
+          {
+            "ko": "반납해 주세요",
+            "en": "Please return"
+          },
+          {
+            "ko": "와이파이 비밀번호는",
+            "en": "The Wi-Fi password"
+          },
+          {
+            "ko": "객실 책상 위 카드에",
+            "en": "on the card on your room's desk"
+          },
+          {
+            "ko": "적혀 있습니다",
+            "en": "is written"
+          },
+          {
+            "ko": "궁금한 점이 있으시면",
+            "en": "If you have any questions"
+          },
+          {
+            "ko": "언제든지",
+            "en": "at any time"
+          },
+          {
+            "ko": "프런트로 전화해 주세요",
+            "en": "feel free to call the front desk"
+          },
+          {
+            "ko": "수영장에 들어가시기 전에",
+            "en": "before entering the pool"
+          }
+        ]
+      },
+      "flawed": {
+        "_mock": true,
+        "backtranslation": "Check-in begins at 3 p.m. and check-out is by 11 a.m. Please make sure to shower after using the pool. The pool is on the fourth floor and is open from 7 a.m. to 9 p.m. Breakfast is served at the restaurant on the third floor from 7 a.m. to 10 a.m.\n\nPlease return your room key to the first-floor front desk when you check out. The Wi-Fi password is written on the card on the desk in your room. If you have any questions, please call the front desk at any time.",
+        "rationale": "The translation is mostly accurate, but the pool rule appears reversed. The source says to shower before entering the pool (\"들어가시기 전에\" = before entering), while the translation says to shower after using it. Times and floor numbers all match the source.",
+        "qe": {
+          "score": 78,
+          "spans": [
+            {
+              "text": "Check-in starts at 3 p.m.",
+              "score": 0.95
+            },
+            {
+              "text": "shower after using the pool.",
+              "score": 0.42,
+              "note": "Possible meaning change"
+            },
+            {
+              "text": "The pool is on the fourth floor",
+              "score": 0.93
+            },
+            {
+              "text": "Breakfast is served in the third-floor restaurant",
+              "score": 0.9
+            },
+            {
+              "text": "feel free to call the front desk at any time.",
+              "score": 0.64,
+              "note": "Wording differs from the source"
+            }
+          ]
+        },
+        "alignment": [
+          {
+            "ko": "체크인은 오후 세 시부터",
+            "en": "Check-in starts at 3 p.m."
+          },
+          {
+            "ko": "체크아웃은 오전 열한 시까지입니다",
+            "en": "check-out is by 11 a.m."
+          },
+          {
+            "ko": "꼭 샤워를 해 주세요",
+            "en": "Please be sure to shower"
+          },
+          {
+            "ko": "수영장은 사 층에 있으며",
+            "en": "The pool is on the fourth floor"
+          },
+          {
+            "ko": "오전 일곱 시부터 밤 아홉 시까지",
+            "en": "from 7 a.m. to 9 p.m."
+          },
+          {
+            "ko": "이용하실 수 있습니다",
+            "en": "is open"
+          },
+          {
+            "ko": "조식은",
+            "en": "Breakfast"
+          },
+          {
+            "ko": "삼 층 식당에서",
+            "en": "in the third-floor restaurant"
+          },
+          {
+            "ko": "오전 일곱 시부터 열 시까지",
+            "en": "from 7 a.m. to 10 a.m."
+          },
+          {
+            "ko": "제공됩니다",
+            "en": "is served"
+          },
+          {
+            "ko": "객실 열쇠는",
+            "en": "your room key"
+          },
+          {
+            "ko": "체크아웃하실 때",
+            "en": "when you check out"
+          },
+          {
+            "ko": "일 층 프런트에",
+            "en": "to the front desk on the first floor"
+          },
+          {
+            "ko": "반납해 주세요",
+            "en": "Please return"
+          },
+          {
+            "ko": "와이파이 비밀번호는",
+            "en": "The Wi-Fi password"
+          },
+          {
+            "ko": "객실 책상 위 카드에",
+            "en": "on the card on your room's desk"
+          },
+          {
+            "ko": "적혀 있습니다",
+            "en": "is written"
+          },
+          {
+            "ko": "궁금한 점이 있으시면",
+            "en": "If you have any questions"
+          },
+          {
+            "ko": "언제든지",
+            "en": "at any time"
+          },
+          {
+            "ko": "프런트로 전화해 주세요",
+            "en": "feel free to call the front desk"
+          },
+          {
+            "ko": "수영장에 들어가시기 전에",
+            "en": "after using the pool"
+          }
+        ]
+      }
+    },
+    "p2_med": {
+      "correct": {
+        "_mock": true,
+        "backtranslation": "This drug is the antibiotic amoxicillin. From today, take one capsule after breakfast, lunch and dinner for two weeks. Even if you feel better, you must take it every time for the whole period.\n\nIf you get bad diarrhea or hives, stop taking it and call your doctor immediately. Drink enough water while taking this medicine. Keep the medicine somewhere cool and away from sunlight. Amoxicillin belongs to the penicillin family, so if you have a penicillin allergy, make sure to tell the pharmacist before you take it.",
+        "rationale": "The translation is faithful. The dose (one capsule after each of three meals), the two-week course, the instruction to finish the course, the warning signs (severe diarrhea, hives), storage, and the penicillin-allergy warning all match the source.",
+        "qe": {
+          "score": 88,
+          "spans": [
+            {
+              "text": "is amoxicillin, an antibiotic.",
+              "score": 0.94
+            },
+            {
+              "text": "for two weeks.",
+              "score": 0.86
+            },
+            {
+              "text": "keep taking it without missing a dose for the full period.",
+              "score": 0.61,
+              "note": "Phrasing is freer than the source"
+            },
+            {
+              "text": "If you develop severe diarrhea or hives,",
+              "score": 0.9
+            },
+            {
+              "text": "be sure to tell the pharmacist before taking it.",
+              "score": 0.92
+            }
+          ]
+        },
+        "alignment": [
+          {
+            "ko": "이 약은",
+            "en": "This medicine"
+          },
+          {
+            "ko": "항생제인 아목시실린입니다",
+            "en": "is amoxicillin, an antibiotic"
+          },
+          {
+            "ko": "오늘부터",
+            "en": "Starting today"
+          },
+          {
+            "ko": "아침, 점심, 저녁 식사 후에",
+            "en": "after breakfast, lunch, and dinner"
+          },
+          {
+            "ko": "한 알씩 드세요",
+            "en": "take one capsule"
+          },
+          {
+            "ko": "증상이 좋아지더라도",
+            "en": "Even if your symptoms improve"
+          },
+          {
+            "ko": "정해진 기간 동안 빠짐없이 드셔야 합니다",
+            "en": "keep taking it without missing a dose for the full period"
+          },
+          {
+            "ko": "설사가 심하거나 두드러기가 나면",
+            "en": "If you develop severe diarrhea or hives"
+          },
+          {
+            "ko": "복용을 멈추고",
+            "en": "stop taking it"
+          },
+          {
+            "ko": "바로 병원에 연락하세요",
+            "en": "contact your doctor right away"
+          },
+          {
+            "ko": "약을 드시는 동안에는",
+            "en": "while you are taking the medicine"
+          },
+          {
+            "ko": "물을 충분히 드세요",
+            "en": "Drink plenty of water"
+          },
+          {
+            "ko": "햇빛이 들지 않는 서늘한 곳에",
+            "en": "in a cool place out of direct sunlight"
+          },
+          {
+            "ko": "보관하세요",
+            "en": "Store the medicine"
+          },
+          {
+            "ko": "아목시실린은 페니실린 계열이므로",
+            "en": "Amoxicillin is a type of penicillin"
+          },
+          {
+            "ko": "페니실린 알레르기가 있으신 분은",
+            "en": "if you are allergic to penicillin"
+          },
+          {
+            "ko": "복용하기 전에",
+            "en": "before taking it"
+          },
+          {
+            "ko": "꼭 약사에게 말씀해 주세요",
+            "en": "be sure to tell the pharmacist"
+          },
+          {
+            "ko": "이 주 동안",
+            "en": "for two weeks"
+          }
+        ]
+      },
+      "flawed": {
+        "_mock": true,
+        "backtranslation": "This drug is the antibiotic amoxicillin. From today, take one capsule after breakfast, lunch and dinner for one week. Even if you feel better, you must take it every time for the whole period.\n\nIf you get bad diarrhea or hives, stop taking it and call your doctor immediately. Drink enough water while taking this medicine. Keep the medicine somewhere cool and away from sunlight. Amoxicillin belongs to the penicillin family, so if you have a penicillin allergy, make sure to tell the pharmacist before you take it.",
+        "rationale": "The translation is accurate. The dosage (one capsule after breakfast, lunch, and dinner), the instruction to finish the full course, the warning signs (severe diarrhea, hives), storage instructions, and the penicillin-allergy warning all match the source.",
+        "qe": {
+          "score": 80,
+          "spans": [
+            {
+              "text": "is amoxicillin, an antibiotic.",
+              "score": 0.94
+            },
+            {
+              "text": "for one week.",
+              "score": 0.55,
+              "note": "Duration may not match the source"
+            },
+            {
+              "text": "keep taking it without missing a dose for the full period.",
+              "score": 0.61,
+              "note": "Phrasing is freer than the source"
+            },
+            {
+              "text": "If you develop severe diarrhea or hives,",
+              "score": 0.9
+            },
+            {
+              "text": "be sure to tell the pharmacist before taking it.",
+              "score": 0.92
+            }
+          ]
+        },
+        "alignment": [
+          {
+            "ko": "이 약은",
+            "en": "This medicine"
+          },
+          {
+            "ko": "항생제인 아목시실린입니다",
+            "en": "is amoxicillin, an antibiotic"
+          },
+          {
+            "ko": "오늘부터",
+            "en": "Starting today"
+          },
+          {
+            "ko": "아침, 점심, 저녁 식사 후에",
+            "en": "after breakfast, lunch, and dinner"
+          },
+          {
+            "ko": "한 알씩 드세요",
+            "en": "take one capsule"
+          },
+          {
+            "ko": "증상이 좋아지더라도",
+            "en": "Even if your symptoms improve"
+          },
+          {
+            "ko": "정해진 기간 동안 빠짐없이 드셔야 합니다",
+            "en": "keep taking it without missing a dose for the full period"
+          },
+          {
+            "ko": "설사가 심하거나 두드러기가 나면",
+            "en": "If you develop severe diarrhea or hives"
+          },
+          {
+            "ko": "복용을 멈추고",
+            "en": "stop taking it"
+          },
+          {
+            "ko": "바로 병원에 연락하세요",
+            "en": "contact your doctor right away"
+          },
+          {
+            "ko": "약을 드시는 동안에는",
+            "en": "while you are taking the medicine"
+          },
+          {
+            "ko": "물을 충분히 드세요",
+            "en": "Drink plenty of water"
+          },
+          {
+            "ko": "햇빛이 들지 않는 서늘한 곳에",
+            "en": "in a cool place out of direct sunlight"
+          },
+          {
+            "ko": "보관하세요",
+            "en": "Store the medicine"
+          },
+          {
+            "ko": "아목시실린은 페니실린 계열이므로",
+            "en": "Amoxicillin is a type of penicillin"
+          },
+          {
+            "ko": "페니실린 알레르기가 있으신 분은",
+            "en": "if you are allergic to penicillin"
+          },
+          {
+            "ko": "복용하기 전에",
+            "en": "before taking it"
+          },
+          {
+            "ko": "꼭 약사에게 말씀해 주세요",
+            "en": "be sure to tell the pharmacist"
+          },
+          {
+            "ko": "이 주 동안",
+            "en": "for one week"
+          }
+        ]
+      }
+    },
+    "p3_hotel": {
+      "correct": {
+        "_mock": true,
+        "backtranslation": "Thank you for reserving our guesthouse. You can check in from 4 p.m. until 10 p.m. Even with a reservation made in advance, you cannot check in unless you show ID.\n\nThe shared kitchen can be used from 8 a.m. to 11 p.m.; please wash the dishes you used yourself. After 11 p.m., please be quiet for other guests. Towels are replaced every two days. The Wi-Fi password is on the notice board in the living room. Luggage can be stored for free until 6 p.m. on the day you check out.",
+        "rationale": "The translation is accurate. Check-in hours, the requirement to show ID even with a booking, kitchen hours, quiet hours, towel changes, and luggage storage all match the source.",
+        "qe": {
+          "score": 92,
+          "spans": [
+            {
+              "text": "Check-in is available from 4 p.m. to 10 p.m.",
+              "score": 0.94
+            },
+            {
+              "text": "you cannot check in without showing identification.",
+              "score": 0.9
+            },
+            {
+              "text": "Towels are changed once every two days.",
+              "score": 0.88
+            },
+            {
+              "text": "The Wi-Fi password is posted on the board in the lounge.",
+              "score": 0.66,
+              "note": "\"lounge\" may differ from the source"
+            }
+          ]
+        },
+        "alignment": [
+          {
+            "ko": "저희 게스트하우스를 예약해 주셔서 감사합니다",
+            "en": "Thank you for booking our guesthouse."
+          },
+          {
+            "ko": "체크인은 오후 네 시부터 밤 열 시까지 가능합니다",
+            "en": "Check-in is available from 4 p.m. to 10 p.m."
+          },
+          {
+            "ko": "예약을 미리 하셨더라도",
+            "en": "Even if you have booked in advance,"
+          },
+          {
+            "ko": "신분증을 제시하지 않으시면",
+            "en": "without showing identification."
+          },
+          {
+            "ko": "체크인하실 수 없습니다",
+            "en": "you cannot check in"
+          },
+          {
+            "ko": "공용 주방은",
+            "en": "The shared kitchen"
+          },
+          {
+            "ko": "오전 여덟 시부터 밤 열한 시까지 이용하실 수 있으며",
+            "en": "is open from 8 a.m. to 11 p.m.;"
+          },
+          {
+            "ko": "사용하신 그릇은 직접 씻어 주세요",
+            "en": "please wash your own dishes after using them."
+          },
+          {
+            "ko": "밤 열한 시 이후에는",
+            "en": "After 11 p.m.,"
+          },
+          {
+            "ko": "다른 손님들을 위해 조용히 해 주세요",
+            "en": "please keep quiet for the other guests."
+          },
+          {
+            "ko": "수건은 이틀에 한 번 바꿔 드립니다",
+            "en": "Towels are changed once every two days."
+          },
+          {
+            "ko": "와이파이 비밀번호는 거실 게시판에 붙어 있습니다",
+            "en": "The Wi-Fi password is posted on the board in the lounge."
+          },
+          {
+            "ko": "짐 보관은 체크아웃 당일 오후 여섯 시까지 무료입니다",
+            "en": "Luggage storage is free until 6 p.m. on your check-out day."
+          }
+        ]
+      }
+    }
+  }
+}
