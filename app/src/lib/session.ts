@@ -51,11 +51,34 @@ export function parseMode(value: string | null): SessionMode {
   return m && MODES.includes(m) ? m : 'online';
 }
 
+const conditionFor = (pid: string) => {
+  const condParam = params.get('cond');
+  return condParam !== null ? Number(condParam) % NUM_CONDITIONS : hash(pid) % NUM_CONDITIONS;
+};
+
+/** Provisional identity until the participant gives their email on the welcome page (see `withEmail`). */
 export function initSession(): SessionRecord {
   const pid = params.get('pid') || `P-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-  const condParam = params.get('cond');
-  const condition = condParam !== null ? Number(condParam) % NUM_CONDITIONS : hash(pid) % NUM_CONDITIONS;
-  return { sessionId: uuid(), pid, condition, mode: parseMode(params.get('mode')), startedAt: Date.now(), userAgent: navigator.userAgent, trials: [] };
+  return { sessionId: uuid(), pid, condition: conditionFor(pid), mode: parseMode(params.get('mode')), startedAt: Date.now(), userAgent: navigator.userAgent, trials: [] };
+}
+
+export const normalizeEmail = (email: string) => email.trim().toLowerCase();
+export const isEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+/** Stable participant ID from an email: the same person always gets the same pid (e.g. "P-3F9A12C4"),
+ *  so repeat or restarted sessions line up. Separate runs still have separate session ids. */
+export async function pidFromEmail(email: string): Promise<string> {
+  // crypto.subtle only exists on https:// or localhost; fall back to a simpler hash elsewhere.
+  if (!globalThis.crypto?.subtle) return `P-${hash(normalizeEmail(email)).toString(16).padStart(8, '0').toUpperCase()}`;
+  const bytes = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(normalizeEmail(email))));
+  return `P-${[...bytes.slice(0, 4)].map((b) => b.toString(16).padStart(2, '0')).join('').toUpperCase()}`;
+}
+
+/** Attach the participant's email. A researcher-assigned `?pid=` still wins; otherwise the pid (and, unless
+ *  `?cond=` is set, the condition) is derived from the email. */
+export async function withEmail(session: SessionRecord, email: string): Promise<SessionRecord> {
+  const pid = params.get('pid') || (await pidFromEmail(email));
+  return { ...session, email: normalizeEmail(email), pid, condition: conditionFor(pid) };
 }
 
 const STORAGE_KEY = 'mt-study-session';

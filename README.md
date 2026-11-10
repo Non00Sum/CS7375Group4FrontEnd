@@ -48,10 +48,10 @@ Consent → Pre-survey → 4 notices (the first with hints) → Post-survey → 
 
 | Step | What happens |
 |---|---|
-| **Consent** | Study info, a request not to use outside translation tools, and an agreement checkbox (placeholder text). |
-| **Pre-survey** | First language, Korean proficiency, other languages spoken at an advanced level, machine-translation use and trust (adapted from Ki et al.). |
+| **Consent** | Study info, a request not to use outside translation tools, the participant's **email** (required; sets their ID), and an agreement checkbox (placeholder text). |
+| **Pre-survey** | Occupation, age range, first language, Korean proficiency, other languages spoken at an advanced level (optional), how they usually check a translation, machine-translation use and trust (adapted from Ki et al.). |
 | **Notices** | The 4 notices (2 pharmacy, 2 hotel), each through the four steps below. On the first one, each step and explanation shows a hint on how to read it (there is no separate practice round). |
-| **Post-survey** | Mental demand, helpfulness, future trust (Hoffman et al., 2019), plus open-ended questions. |
+| **Post-survey** | Mental demand, helpfulness, future trust (Hoffman et al., 2019), open-ended questions, and an optional question about a time machine translation misled them. |
 | **Done** | Upload status, with a JSON download as a fallback. |
 
 ### Each notice: decide → reveal → question → rank
@@ -143,7 +143,7 @@ https://translationstudy.netlify.app/?pid=P03&cond=2&mode=moderated
 
 | Parameter | Values | Purpose |
 |---|---|---|
-| `pid` | e.g. `P03` | Participant ID (random if omitted). |
+| `pid` | e.g. `P03` | Participant ID. If omitted, it's derived from the email entered on the welcome page (e.g. `P-973DFE46`), so the same person always gets the same ID. |
 | `cond` | `0`–`3` | Counterbalancing condition (see above). |
 | `mode` | `moderated` · `remote` · `online` (default) | How the session is run; saved with the data. |
 | `debug` | `1` | **Researchers only.** Header shows pid, condition, order, mode and upload queue. |
@@ -197,7 +197,7 @@ Supabase dashboard.
 **Analysis.** In the Supabase **SQL Editor**:
 
 ```sql
-select * from analysis.sessions;   -- one row per session: pid, condition, mode, trials done, completed?
+select * from analysis.sessions;   -- one row per session: pid, condition, mode, trials done, completed?, email
 select * from analysis.trials;     -- one row per notice: version, stakes, decisions, comprehension, rankings, mode
 
 -- did explanations improve decisions, and did people end up understanding correctly?

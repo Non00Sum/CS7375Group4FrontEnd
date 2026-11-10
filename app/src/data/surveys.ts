@@ -2,6 +2,13 @@
 import type { Question } from '../components/Survey';
 
 export const preSurvey: Question[] = [
+  { id: 'occupation', type: 'text', label: 'What is your occupation? (If you are a student, what are you studying?)' },
+  {
+    id: 'age_range',
+    type: 'choice',
+    label: 'What is your age?',
+    options: ['18–24', '25–34', '35–44', '45–54', '55 or older', 'Prefer not to say'],
+  },
   { id: 'first_language', type: 'text', label: 'What is your first language?' },
   {
     id: 'korean_proficiency',
@@ -30,11 +37,11 @@ export const preSurvey: Question[] = [
   },
   { id: 'mt_trust', type: 'likert', label: 'In general, how much do you trust machine translation?', low: 'Not at all', high: 'Completely' },
   {
-    id: 'mt_issue',
+    id: 'mt_check_methods',
     type: 'text',
     long: true,
-    label: 'Describe a time machine translation gave you a wrong or misleading result, if any.',
-    optional: true,
+    label:
+      "When you're not sure whether a machine translation is correct, what do you do to check it? (If you usually don't check, say so.)",
   },
 ];
 
@@ -44,5 +51,12 @@ export const postSurvey: Question[] = [
   { id: 'future_trust', type: 'likert', label: 'If a translation tool showed these explanations, how much would you trust it in the future?', low: 'Not at all', high: 'Completely' },
   { id: 'most_useful', type: 'text', long: true, label: 'Which kind of explanation was most useful to you, and why?' },
   { id: 'missing', type: 'text', long: true, label: 'What information was missing that would have helped you decide?' },
+  {
+    id: 'mt_issue',
+    type: 'text',
+    long: true,
+    label: 'Outside this study, has machine translation ever given you a wrong or misleading result? If so, describe what happened.',
+    optional: true,
+  },
   { id: 'stakes', type: 'text', long: true, label: 'Did you find yourself judging the translations or using the explanations differently for the pharmacy notices than for the hotel notices? If so, how?' },
 ];

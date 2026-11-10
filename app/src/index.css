@@ -35,6 +35,9 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 button.primary { background: var(--accent); color: #fff; border-color: var(--accent); margin-top: 12px; }
 textarea, input[type=text] { width: 100%; font: inherit; padding: 8px; border: 1px solid var(--border); border-radius: 8px; margin-top: 4px; }
 
+.email-field { display: flex; flex-direction: column; gap: 4px; margin: 12px 0; font-weight: 500; }
+.email-field input { max-width: 360px; font-weight: 400; }
+.email-field span { font-weight: 400; }
 .hint { background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; margin: 0 0 12px; }
 
 /* Trial */

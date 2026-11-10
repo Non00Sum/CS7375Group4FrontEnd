@@ -143,6 +143,8 @@ export type SessionMode = 'moderated' | 'remote' | 'online';
 export interface SessionRecord {
   sessionId: string;
   pid: string;
+  /** Given on the welcome page; the pid is derived from it unless the link sets ?pid=. */
+  email?: string;
   condition: number;
   mode: SessionMode;
   startedAt: number;

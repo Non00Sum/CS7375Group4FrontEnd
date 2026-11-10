@@ -51,7 +51,9 @@ select
   count(*) filter (where kind = 'trial' and not coalesce((payload->>'tutorial')::boolean, false)) as trials_done,
   bool_or(kind = 'session_complete')                    as completed,
   -- 'moderated' | 'remote' | 'online' (from ?mode=; sessions before this field existed show null)
-  min(payload->>'mode') filter (where kind = 'session_start') as mode
+  min(payload->>'mode') filter (where kind = 'session_start') as mode,
+  -- given on the welcome page; the pid is derived from it unless the link sets ?pid= (null for older sessions)
+  min(payload->>'email') filter (where kind = 'session_start') as email
 from public.study_events
 group by session_id;
 
@@ -84,7 +86,10 @@ select
   e.payload->>'stakes'                                   as stakes,           -- 'high' | 'low'
   e.payload->'comprehension'->>'choice'                  as comprehension_choice,
   e.payload->'comprehension'->>'answerKey'               as comprehension_answer, -- 'correct' | 'flawed' | 'unsure'
-  (e.payload->'comprehension'->>'isRight')::boolean      as comprehension_right
+  (e.payload->'comprehension'->>'isRight')::boolean      as comprehension_right,
+  -- added with the image-first layout (null for earlier sessions)
+  (e.payload->>'hints')::boolean                         as hints,               -- true on the session's first (hinted) notice
+  jsonb_array_length(e.payload->'transcriptionOpens')    as transcription_opens  -- clicks on "Show transcription"
 from public.study_events e
 left join public.study_events s on s.session_id = e.session_id and s.kind = 'session_start'
 where e.kind = 'trial';

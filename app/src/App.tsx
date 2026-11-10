@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { SessionRecord, TrialResult } from './types';
 import { stimuliForCondition } from './data/study';
 import { preSurvey, postSurvey } from './data/surveys';
-import { downloadJSON, explanationOrder, initSession, params, saveLocal } from './lib/session';
+import { downloadJSON, explanationOrder, initSession, isEmail, params, saveLocal, withEmail } from './lib/session';
 import { flush, recordEvent, useSyncStatus, type EventKind } from './lib/sync';
 import { Trial } from './components/Trial';
 import { Survey } from './components/Survey';
@@ -16,6 +16,8 @@ export default function App() {
   const [stage, setStage] = useState<Stage>(initial && STAGES.includes(initial) ? initial : 'welcome');
   const [trialIdx, setTrialIdx] = useState(0);
   const [consent, setConsent] = useState(false);
+  const [email, setEmail] = useState('');
+  const [starting, setStarting] = useState(false);
   const sync = useSyncStatus();
 
   const order = useMemo(() => explanationOrder(session.condition), [session.condition]);
@@ -65,24 +67,41 @@ export default function App() {
           <p className="muted small">
             [Placeholder consent text: purpose, voluntary participation, data handling, contact information.]
           </p>
+          <label className="email-field">
+            Your email address
+            <input
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@example.com"
+            />
+            <span className="muted small">
+              Used to link your responses together and, if needed, to contact you about this study.
+            </span>
+          </label>
           <label className="consent">
             <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> I have read the
             information above and agree to take part.
           </label>
           <button
             className="primary"
-            disabled={!consent}
-            onClick={() => {
+            disabled={!consent || !isEmail(email) || starting}
+            onClick={async () => {
+              setStarting(true);
               const consentAt = Date.now();
-              record('session_start', {
-                mode: session.mode,
-                startedAt: session.startedAt,
+              // The email decides the pid (and condition), so build the session record before logging the start.
+              const started = { ...(await withEmail(session, email)), consent: consentAt };
+              recordEvent(started, 'session_start', {
+                mode: started.mode,
+                email: started.email,
+                startedAt: started.startedAt,
                 consent: consentAt,
-                userAgent: session.userAgent,
-                explanationOrder: order,
-                trialOrder: trials.map((t) => `${t.id}:${t.version}`),
+                userAgent: started.userAgent,
+                explanationOrder: explanationOrder(started.condition),
+                trialOrder: stimuliForCondition(started.condition).map((t) => `${t.id}:${t.version}`),
               });
-              setSession((s) => ({ ...s, consent: consentAt }));
+              setSession(started);
               setStage('pre');
             }}
           >

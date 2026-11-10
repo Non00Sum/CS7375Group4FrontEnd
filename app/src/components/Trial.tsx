@@ -21,10 +21,12 @@ export const RANK_DIMENSIONS = [
   {
     id: 'understandability',
     question: 'Rank the explanations by how easy they were to understand.',
+    why: 'What made your top choice easier to understand than your bottom choice?',
   },
   {
     id: 'decision_support',
     question: 'Rank the explanations by how much they helped you decide whether to trust the translation.',
+    why: 'What did your top choice tell you that helped you decide? What was missing from your bottom choice?',
   },
 ] as const;
 
@@ -260,7 +262,7 @@ export function Trial({ stimulus, order, hints, progress, onComplete }: Props) {
                   </p>
                   <RankList items={rankings[d.id]} onChange={(items) => setRankings((r) => ({ ...r, [d.id]: items }))} />
                   <label className="small">
-                    Why did you rank them this way?
+                    {d.why}
                     <textarea
                       rows={3}
                       value={justifications[d.id] ?? ''}
