@@ -12,7 +12,8 @@ export const preSurvey: Question[] = [
   {
     id: 'other_languages',
     type: 'text',
-    label: 'Do you speak any other languages at an advanced level or above? If so, which ones? (Write "None" if not.)',
+    label: 'Do you speak any other languages at an advanced level or above? If so, which ones?',
+    optional: true,
   },
   {
     id: 'mt_frequency',
