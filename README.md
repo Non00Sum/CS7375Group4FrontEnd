@@ -48,16 +48,17 @@ Consent → Pre-survey → 4 notices (the first with hints) → Post-survey → 
 
 | Step | What happens |
 |---|---|
-| **Consent** | Study info and an agreement checkbox (placeholder text). |
-| **Pre-survey** | First language, Korean proficiency, machine-translation use and trust (adapted from Ki et al.). |
+| **Consent** | Study info, a request not to use outside translation tools, and an agreement checkbox (placeholder text). |
+| **Pre-survey** | First language, Korean proficiency, other languages spoken at an advanced level, machine-translation use and trust (adapted from Ki et al.). |
 | **Notices** | The 4 notices (2 pharmacy, 2 hotel), each through the four steps below. On the first one, each step and explanation shows a hint on how to read it (there is no separate practice round). |
 | **Post-survey** | Mental demand, helpfulness, future trust (Hoffman et al., 2019), plus open-ended questions. |
 | **Done** | Upload status, with a JSON download as a fallback. |
 
 ### Each notice: decide → reveal → question → rank
 
-The scenario stays at the top throughout, and **View original** opens the notice image (scroll and zoom)
-at any step.
+The scenario stays at the top throughout. The original notice is shown as an **image** (click **Enlarge** to
+scroll and zoom); the Korean text is hidden behind a **Show transcription** button, and is revealed
+automatically when the word-matching explanation is opened, since that explanation works on the text.
 
 1. **First impression.** Korean text + English translation only → *Rely on this translation* / *Get it
    checked* + confidence (1–7). The notice's `check_cost` (e.g. *"calling the clinic, which has a long phone
@@ -82,7 +83,7 @@ at any step.
 | **Comprehension** | the key question | Did people end up with the right understanding, or act on the error? This is the most direct behavioral outcome. |
 | **Confidence** | 1–7 after each decision | Calibration: confident when right, unsure when wrong? |
 | **Preference** | rankings + written reasons | Which explanations people find understandable and useful, and why (the qualitative data). |
-| **Process** | tab view times, word-matching hovers, original-image views | How people used each explanation. |
+| **Process** | tab view times, word-matching hovers, original-image views, transcription opens | How people used each explanation. |
 
 ### Explanation types
 
@@ -180,7 +181,7 @@ finished, so dropouts keep what they completed:
 |---|---|---|
 | `session_start` | after consent | mode, explanation order, document order, user agent |
 | `pre_survey` | after pre-survey | answers |
-| `trial` | after each notice | notice id, version, stakes, both decisions + confidence, comprehension answer, rankings + justifications, tab view times, word-matching hovers, original-image views |
+| `trial` | after each notice | notice id, version, stakes, both decisions + confidence, comprehension answer, rankings + justifications, tab view times, word-matching hovers, original-image views, transcription opens |
 | `post_survey` | after post-survey | answers |
 | `session_complete` | at the end | the full session record |
 
@@ -301,7 +302,7 @@ session.
 - [ ] `npm run check-data` passes with no "pending" or "(mock)" in the coverage table
 - [ ] Finalize survey items (`app/src/data/surveys.ts`)
 - [ ] Re-run `app/supabase/schema.sql` if it changed
-- [ ] Pilot with 1–2 people on the live site; check the session length (target 30–45 min)
+- [ ] Pilot with 1–2 people on the live site; check the session length (target about 20 min)
 - [ ] Delete pilot and test rows: `delete from public.study_events where pid like 'TEST%';`
 - [ ] Prepare participant links and a session sheet with conditions assigned
 

@@ -10,6 +10,11 @@ export const preSurvey: Question[] = [
     options: ['Not at all', 'I recognize some characters', 'Basic', 'Intermediate', 'Fluent / native'],
   },
   {
+    id: 'other_languages',
+    type: 'text',
+    label: 'Do you speak any other languages at an advanced level or above? If so, which ones? (Write "None" if not.)',
+  },
+  {
     id: 'mt_frequency',
     type: 'choice',
     label: 'How often do you use machine translation tools (e.g., Google Translate, DeepL, ChatGPT)?',
@@ -38,5 +43,5 @@ export const postSurvey: Question[] = [
   { id: 'future_trust', type: 'likert', label: 'If a translation tool showed these explanations, how much would you trust it in the future?', low: 'Not at all', high: 'Completely' },
   { id: 'most_useful', type: 'text', long: true, label: 'Which kind of explanation was most useful to you, and why?' },
   { id: 'missing', type: 'text', long: true, label: 'What information was missing that would have helped you decide?' },
-  { id: 'stakes', type: 'text', long: true, label: 'Did you judge the translations or use the explanations differently for the pharmacy notices than for the hotel notices? How?' },
+  { id: 'stakes', type: 'text', long: true, label: 'Did you find yourself judging the translations or using the explanations differently for the pharmacy notices than for the hotel notices? If so, how?' },
 ];

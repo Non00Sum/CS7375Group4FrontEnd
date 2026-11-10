@@ -9,7 +9,7 @@ const TUTORIAL_HINTS: Record<ExplanationType, string> = {
   rationale: 'This is a written explanation, produced by an AI model, of how well the translation matches the original.',
   qe: 'Parts of the translation are colored by how likely they are to contain an error. Hover over colored text to see details.',
   alignment:
-    'Hover over words in either document to see which words correspond to each other. Translated words with a dashed underline have no matching words in the original.',
+    'Hover over words in the Korean transcription or the translation to see which words correspond to each other. Translated words with a dashed underline have no matching words in the original.',
 };
 
 interface Props {

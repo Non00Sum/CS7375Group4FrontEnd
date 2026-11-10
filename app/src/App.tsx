@@ -55,7 +55,12 @@ export default function App() {
           <p>
             For each notice you'll decide whether you would rely on the translation or get it checked, look at
             several different explanations of it, answer a question about your situation, and rank the explanations. The study takes
-            about 30 minutes.
+            about 20 minutes.
+          </p>
+          <p>
+            <strong>Please don't use any external translation tools</strong> (such as Google Translate, Papago or
+            ChatGPT) at any point during the study. We want to know how you judge the translations using only what
+            the study shows you.
           </p>
           <p className="muted small">
             [Placeholder consent text: purpose, voluntary participation, data handling, contact information.]

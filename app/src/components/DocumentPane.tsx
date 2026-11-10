@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import type { AlignLink, ExplanationType, Stimulus } from '../types';
 
 interface Props {
@@ -7,6 +7,8 @@ interface Props {
   overlay: ExplanationType | null;
   onAlignmentHover?: () => void;
   onViewOriginal?: () => void;
+  /** Called when the participant clicks "Show transcription". */
+  onShowTranscription?: () => void;
 }
 
 const inRange = (i: number, [s, e]: [number, number]) => i >= s && i < e;
@@ -17,13 +19,21 @@ export function qeLevel(score: number): 'bad' | 'warn' | 'ok' {
   return 'ok';
 }
 
-export function DocumentPane({ stimulus, overlay, onAlignmentHover, onViewOriginal }: Props) {
+export function DocumentPane({ stimulus, overlay, onAlignmentHover, onViewOriginal, onShowTranscription }: Props) {
   const [hovered, setHovered] = useState<AlignLink[]>([]);
+  // The notice image is shown first; the Korean text is a transcription the participant can reveal.
+  // Without an image, the transcription is all there is, so it's always shown.
+  const image = stimulus.original?.kind === 'image' ? stimulus.original.src : undefined;
+  const [showTranscript, setShowTranscript] = useState(!stimulus.original);
   const { alignment, qe } = stimulus.explanations;
   const links = useMemo(() => alignment ?? [], [alignment]);
   // Overlays only apply once that explanation exists (null = still pending).
   const showAlign = overlay === 'alignment' && alignment !== null;
   const showQE = overlay === 'qe' && qe !== null;
+  // Word matching works on the transcription, so opening that explanation reveals it.
+  useEffect(() => {
+    if (showAlign) setShowTranscript(true);
+  }, [showAlign]);
   const srcBreaks = useMemo(() => new Set(stimulus.sourceBreaks), [stimulus.sourceBreaks]);
   const tgtBreaks = useMemo(() => new Set(stimulus.targetBreaks), [stimulus.targetBreaks]);
 
@@ -52,24 +62,43 @@ export function DocumentPane({ stimulus, overlay, onAlignmentHover, onViewOrigin
             Original document <span className="muted">({stimulus.sourceLang})</span>
           </h3>
           {stimulus.original && onViewOriginal && (
-            <button className="small" onClick={onViewOriginal} title="See the full original document with its layout and surrounding context">
-              ⤢ View original{stimulus.original.kind === 'pdf' ? ' (PDF)' : ''}
+            <button className="small" onClick={onViewOriginal} title="See the original document up close">
+              ⤢ {image ? 'Enlarge' : `View original${stimulus.original.kind === 'pdf' ? ' (PDF)' : ''}`}
             </button>
           )}
         </div>
-        <p className="doc-text source" lang="ko" onMouseLeave={() => setHovered([])}>
-          {stimulus.sourceTokens.map((t, i) => (
-            <Fragment key={i}>
-              {srcBreaks.has(i) && <span className="para-break" />}
-              <span
-                className={`tok ${showAlign ? 'hoverable' : ''} ${showAlign && isHot('src', i) ? 'hot' : ''}`}
-                onMouseEnter={() => hover('src', i)}
-              >
-                {t}
-              </span>{' '}
-            </Fragment>
-          ))}
-        </p>
+        {image && (
+          <button className="doc-image" onClick={onViewOriginal} title="Click to enlarge">
+            <img src={image} alt={`The original notice in ${stimulus.sourceLang}`} draggable={false} />
+          </button>
+        )}
+        {stimulus.original && (
+          <button
+            className="small transcript-toggle"
+            aria-expanded={showTranscript}
+            onClick={() => {
+              if (!showTranscript) onShowTranscription?.();
+              setShowTranscript(!showTranscript);
+            }}
+          >
+            {showTranscript ? 'Hide transcription' : 'Show transcription'}
+          </button>
+        )}
+        {showTranscript && (
+          <p className="doc-text source" lang="ko" onMouseLeave={() => setHovered([])}>
+            {stimulus.sourceTokens.map((t, i) => (
+              <Fragment key={i}>
+                {srcBreaks.has(i) && <span className="para-break" />}
+                <span
+                  className={`tok ${showAlign ? 'hoverable' : ''} ${showAlign && isHot('src', i) ? 'hot' : ''}`}
+                  onMouseEnter={() => hover('src', i)}
+                >
+                  {t}
+                </span>{' '}
+              </Fragment>
+            ))}
+          </p>
+        )}
       </section>
       <section className="doc-col">
         <h3>

@@ -128,6 +128,9 @@ export interface TrialResult {
   alignmentHovers: number;
   /** Each time the participant opened the original-document viewer. */
   originalViews: OriginalViewRecord[];
+  /** Step at which the participant clicked "Show transcription" each time (not counting the automatic
+   *  reveal when the word-matching explanation is opened). */
+  transcriptionOpens: TrialStep[];
   startedAt: number;
   completedAt: number;
 }
