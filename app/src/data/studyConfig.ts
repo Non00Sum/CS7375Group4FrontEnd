@@ -6,10 +6,10 @@ import type { TranslationVersion } from '../types';
 
 /** Shown to every participant, rotated by condition. Use an even number per stakes level so each
  *  participant gets the same number of flawed and correct translations within each stakes level. */
-export const MAIN_SET = ['p2_med', 'p4_med', 'p1_hotel', 'p6_hotel'];
+export const MAIN_SET = ['p2_med', 'p4_med', 'p3_hotel', 'p6_hotel'];
 
-/** Practice round (always first, with hints). Uses a backup notice so it doesn't reveal a main one. */
-export const PRACTICE: { id: string; version: TranslationVersion } = { id: 'p3_hotel', version: 'correct' };
+/** There is no separate practice notice: the first notice of each session shows "how to read this" hints
+ *  instead. Since the order rotates by condition, each notice is the hinted one in exactly one condition. */
 
 /**
  * Which translation each participant sees, balanced across the 4 conditions.

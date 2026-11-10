@@ -4,13 +4,16 @@
  */
 import type { Stimulus, TranslationVersion } from '../types';
 import noticesFile from '../../translation-experiment-data/notices.json';
-import explanationsFile from '../../translation-experiment-data/explanations.json';
 import { buildStimulus, type RawExplanationsFile, type RawNoticesFile } from './buildStimuli';
-import { MAIN_SET, PRACTICE, assignVersions } from './studyConfig';
+import { MAIN_SET, assignVersions } from './studyConfig';
 import { rotate } from '../lib/session';
 
 const notices = (noticesFile as RawNoticesFile).documents;
-const explanations = (explanationsFile as RawExplanationsFile).explanations;
+// explanations.json is optional: while it's missing, every explanation shows as "not generated yet".
+const explanationsFile = Object.values(
+  import.meta.glob('../../translation-experiment-data/explanations.json', { eager: true, import: 'default' }),
+)[0] as RawExplanationsFile | undefined;
+const explanations = explanationsFile?.explanations ?? {};
 
 // Images are bundled by Vite; map "images/p2_med.png" → served URL.
 const imageUrls = import.meta.glob('../../translation-experiment-data/images/*', {
@@ -31,8 +34,6 @@ function make(id: string, version: TranslationVersion): Stimulus {
   problems.forEach((p) => console.error(`[data] ${p}`));
   return stimulus;
 }
-
-export const practiceStimulus: Stimulus = make(PRACTICE.id, PRACTICE.version);
 
 /** The main documents for a condition: order rotated, versions assigned. */
 export function stimuliForCondition(condition: number): Stimulus[] {

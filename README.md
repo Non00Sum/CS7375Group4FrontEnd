@@ -8,9 +8,9 @@ the source language.
 
 **Team:** Eric Buz Kuan
 
-> ⚠️ **Status: real notices, mock explanations.** The notices, translations, scenarios and questions are the
-> team's study materials. Explanations are hand-written placeholders for 2 of the 4 main notices and missing
-> for the other 2. Survey items and consent text are drafts. See [Before running real participants](#before-running-real-participants).
+> ⚠️ **Status: real notices, no explanations yet.** The notices, translations, scenarios and questions are the
+> team's study materials. Explanations haven't been generated yet (`explanations.json` is absent), so every
+> explanation shows as "not generated yet". Survey items and consent text are drafts. See [Before running real participants](#before-running-real-participants).
 
 ---
 
@@ -32,8 +32,8 @@ Participants imagine traveling in Korea. Each notice they see is a short **Korea
 (**high stakes**) or a hotel (**low stakes**), shown with an **English machine translation** and a scenario
 ("Your situation…"). Each notice exists in two versions: a **correct** translation and a **flawed** one with a
 single plausible, consequential error (a flipped "before/after", a dropped list item, a misread number…).
-Participants decide whether they'd accept the translation, look at several explanations of it, answer a
-question that only has the right answer if they caught the error, and rank the explanations. Most
+Participants decide whether they'd rely on the translation or get it checked (at a stated cost), look at
+several explanations of it, answer a question that only has the right answer if they caught the error, and rank the explanations. Most
 participants are US grad students who don't read Korean; the pre-survey asks about Korean proficiency so
 readers can be excluded.
 
@@ -43,15 +43,14 @@ translations, "I'd trust it without any explanation" would always be right and g
 ### Session flow
 
 ```
-Consent → Pre-survey → Practice notice (with hints) → 4 notices → Post-survey → Done
+Consent → Pre-survey → 4 notices (the first with hints) → Post-survey → Done
 ```
 
 | Step | What happens |
 |---|---|
 | **Consent** | Study info and an agreement checkbox (placeholder text). |
 | **Pre-survey** | First language, Korean proficiency, machine-translation use and trust (adapted from Ki et al.). |
-| **Practice** | One backup notice (correct translation); each explanation shows a hint on how to read it. |
-| **Notices** | The 4 main notices (2 pharmacy, 2 hotel), each through the four steps below. |
+| **Notices** | The 4 notices (2 pharmacy, 2 hotel), each through the four steps below. On the first one, each step and explanation shows a hint on how to read it (there is no separate practice round). |
 | **Post-survey** | Mental demand, helpfulness, future trust (Hoffman et al., 2019), plus open-ended questions. |
 | **Done** | Upload status, with a JSON download as a fallback. |
 
@@ -60,13 +59,14 @@ Consent → Pre-survey → Practice notice (with hints) → 4 notices → Post-s
 The scenario stays at the top throughout, and **View original** opens the notice image (scroll and zoom)
 at any step.
 
-1. **First impression.** Korean text + English translation only → *Accept / Reject* + confidence (1–7).
-   This is the **no-explanation baseline**.
+1. **First impression.** Korean text + English translation only → *Rely on this translation* / *Get it
+   checked* + confidence (1–7). The notice's `check_cost` (e.g. *"calling the clinic, which has a long phone
+   queue"*) is shown under *Get it checked*. Stored as `accept` / `reject`. This is the **no-explanation baseline**.
 2. **Explanations.** Four explanations appear as neutrally labeled tabs (*Explanation A–D*). All four must be
-   opened, then the participant decides again (*Accept / Reject* + confidence).
+   opened, then the participant decides again (rely / get it checked + confidence).
 3. **Question.** The scenario's key question (e.g. *"Should you still be taking it on the following
-   Wednesday?"*), multiple choice: one option reflects the true meaning, one reflects the flawed
-   translation, plus *I'm not sure*. Options are shuffled.
+   Wednesday?"*), answered *Yes* / *No* (random order) or *I'm not sure*. One of Yes/No reflects the true
+   meaning, the other the flawed translation.
 4. **Rank.** The participant ranks the explanations on two dimensions, each with a required written reason
    (at least 15 characters), adapted from Ehsan et al.'s comparative rankings:
    - how **easy to understand** each explanation was
@@ -78,7 +78,7 @@ at any step.
 
 | Measure | From | Meaning |
 |---|---|---|
-| **Decision accuracy** | accept/reject before vs. after explanations | Did explanations help people reject flawed and accept correct translations? |
+| **Decision accuracy** | rely/check before vs. after explanations | Did explanations help people check flawed translations and rely on correct ones? |
 | **Comprehension** | the key question | Did people end up with the right understanding, or act on the error? This is the most direct behavioral outcome. |
 | **Confidence** | 1–7 after each decision | Calibration: confident when right, unsure when wrong? |
 | **Preference** | rankings + written reasons | Which explanations people find understandable and useful, and why (the qualitative data). |
@@ -114,14 +114,14 @@ once and follows every other type once. A participant keeps the same order throu
 | **2** | Quality estimate | Word matching | Written explanation | Round-trip translation |
 | **3** | Word matching | Round-trip translation | Quality estimate | Written explanation |
 
-**Notices and versions** (✗ flawed translation, ✓ correct). The practice notice always comes first.
+**Notices and versions** (✗ flawed translation, ✓ correct). The 1st notice is the one shown with hints.
 
 | `cond` | 1st | 2nd | 3rd | 4th |
 |---|---|---|---|---|
-| **0** | p2_med ✗ | p4_med ✓ | p1_hotel ✗ | p6_hotel ✓ |
-| **1** | p4_med ✗ | p1_hotel ✓ | p6_hotel ✗ | p2_med ✓ |
-| **2** | p1_hotel ✓ | p6_hotel ✗ | p2_med ✗ | p4_med ✓ |
-| **3** | p6_hotel ✓ | p2_med ✓ | p4_med ✗ | p1_hotel ✗ |
+| **0** | p2_med ✗ | p4_med ✓ | p3_hotel ✗ | p6_hotel ✓ |
+| **1** | p4_med ✗ | p3_hotel ✓ | p6_hotel ✗ | p2_med ✓ |
+| **2** | p3_hotel ✓ | p6_hotel ✗ | p2_med ✗ | p4_med ✓ |
+| **3** | p6_hotel ✓ | p2_med ✓ | p4_med ✗ | p3_hotel ✗ |
 
 Every participant gets **one flawed and one correct notice at each stakes level**, each notice is flawed in
 exactly half the conditions, and each notice appears in each position once. `npm run check-data` prints
@@ -146,7 +146,7 @@ https://translationstudy.netlify.app/?pid=P03&cond=2&mode=moderated
 | `cond` | `0`–`3` | Counterbalancing condition (see above). |
 | `mode` | `moderated` · `remote` · `online` (default) | How the session is run; saved with the data. |
 | `debug` | `1` | **Researchers only.** Header shows pid, condition, order, mode and upload queue. |
-| `stage` | `welcome` `pre` `tutorial` `trials` `post` `done` | **Researchers only.** Jump to a step for design review. |
+| `stage` | `welcome` `pre` `trials` `post` `done` | **Researchers only.** Jump to a step for design review. |
 
 Keep a session sheet (pid, cond, mode, date, moderator, notes).
 
@@ -164,7 +164,7 @@ Keep a session sheet (pid, cond, mode, date, moderator, notes).
 - Record the call, with consent.
 
 ### Self-serve (`mode=online` or omitted)
-- Send the link. The practice round and hints are built to work without a researcher.
+- Send the link. The hints on the first notice are built to work without a researcher.
 
 If a session breaks, restart with a suffixed ID (e.g. `P03b`). Every run has its own `session_id`, so partial
 runs stay separable.
@@ -180,7 +180,7 @@ finished, so dropouts keep what they completed:
 |---|---|---|
 | `session_start` | after consent | mode, explanation order, document order, user agent |
 | `pre_survey` | after pre-survey | answers |
-| `trial` | after each notice (incl. practice) | notice id, version, stakes, both decisions + confidence, comprehension answer, rankings + justifications, tab view times, word-matching hovers, original-image views |
+| `trial` | after each notice | notice id, version, stakes, both decisions + confidence, comprehension answer, rankings + justifications, tab view times, word-matching hovers, original-image views |
 | `post_survey` | after post-survey | answers |
 | `session_complete` | at the end | the full session record |
 
@@ -204,11 +204,13 @@ select stakes, version,
        avg(baseline_correct::int)    as decided_right_before,
        avg(revised_correct::int)     as decided_right_after,
        avg(comprehension_right::int) as understood
-from analysis.trials where not tutorial
+from analysis.trials
 group by stakes, version order by stakes, version;
 ```
 
-`*_correct` means the participant rejected a flawed translation or accepted a correct one.
+`*_correct` means the participant chose to get a flawed translation checked (`reject`) or relied on a correct
+one (`accept`). Each trial payload also has `hints` (true on the session's first notice); `tutorial` is always
+false now that there is no practice round.
 `comprehension_answer` is `correct`, `flawed` (acted on the error) or `unsure`. Exclude test runs
 (e.g. `where pid not like 'TEST%'`) and participants who report reading Korean. The `analysis` schema isn't
 reachable through the public API.
@@ -225,19 +227,17 @@ app reads it directly:
 
 | File | Owner | Contents |
 |---|---|---|
-| `notices.json` | Eric | Korean text, correct + flawed English, error description, scenario, key question with answer choices |
-| `explanations.json` | Kuan | Explanations per notice **and version**; phrases copied from the texts, not offsets |
+| `notices.json` | Eric | Korean text, correct + flawed English, error description, scenario, cost of checking, yes/no key question |
+| `explanations.json` | Kuan | Explanations per notice **and version**; phrases copied from the texts, not offsets. Optional until generated |
 | `images/` | Eric | The notices as images, for "View original" |
 
 The full format is in [`app/translation-experiment-data/README.md`](app/translation-experiment-data/README.md).
 After editing, run `cd app && npm run check-data`. It validates every phrase and id and prints explanation
-coverage and the condition table. Which notices are main, backup or practice is set in
+coverage and the condition table. Which notices are used is set in
 [`app/src/data/studyConfig.ts`](app/src/data/studyConfig.ts).
 
-**Current explanation coverage:** mock explanations for `p1_hotel`, `p2_med` (both versions) and `p3_hotel`
-(practice). `p4_med` and `p6_hotel` show "not generated yet". The mocks are deliberately imperfect
-(round-trip repeats the error, one written explanation misses it, the quality estimate has a false alarm),
-but they are **not** real model output.
+**Current explanation coverage:** none. `explanations.json` doesn't exist yet, so all four notices show
+"not generated yet" for every explanation.
 
 Survey items are in [`app/src/data/surveys.ts`](app/src/data/surveys.ts).
 
@@ -279,7 +279,7 @@ session.
     ├── supabase/schema.sql      table, access rules, analysis views
     ├── translation-experiment-data/
     │   ├── notices.json         notices, translations, scenarios, questions
-    │   ├── explanations.json    precomputed explanations (currently partly MOCK)
+    │   ├── explanations.json    precomputed explanations (not added yet)
     │   └── images/              notice images for "View original"
     ├── scripts/check-data.ts    data validator (npm run check-data)
     └── src/
@@ -297,7 +297,7 @@ session.
 ## Before running real participants
 
 - [ ] Replace the consent placeholder (`app/src/App.tsx`, Welcome screen)
-- [ ] Real explanations for all 4 main notices × 2 versions + the practice notice (`explanations.json`)
+- [ ] Real explanations for all 4 notices × 2 versions (`explanations.json`)
 - [ ] `npm run check-data` passes with no "pending" or "(mock)" in the coverage table
 - [ ] Finalize survey items (`app/src/data/surveys.ts`)
 - [ ] Re-run `app/supabase/schema.sql` if it changed
@@ -310,7 +310,7 @@ session.
 ## Open questions
 
 - **Round-trip translation.** The translation is already in English, so English → Korean → English never checks
-  the Korean source and can repeat errors (the mocks show this). Keep it, replace it with an
+  the Korean source and can repeat errors. Keep it, replace it with an
   independent second translation, or drop it?
 - **Order effects of errors.** Each participant sees 2 flawed translations out of 4. After catching one,
   people may grow more suspicious; the rotation spreads this across notices but doesn't remove it.

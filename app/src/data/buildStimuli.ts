@@ -6,18 +6,12 @@
  * Spans in explanations.json are written as exact phrases copied from the text ("ko" / "en"), not
  * offsets, so they are easy for people and agents to author. They are resolved to token ranges here.
  */
-import type { AlignLink, QESpan, Stimulus, StimulusExplanations, TokenRange, TranslationVersion } from '../types';
+import type { AlignLink, KeyQuestion, QESpan, Stimulus, StimulusExplanations, TokenRange, TranslationVersion } from '../types';
 
 // ---------- Raw file formats (see translation-experiment-data/README.md) ----------
 
-export interface RawChoice {
-  label: string;
-  key: TranslationVersion;
-}
-
 export interface RawNotice {
   id: string;
-  set: 'main' | 'backup' | string;
   stakes: 'high' | 'low';
   setting: string;
   title_ko: string;
@@ -27,11 +21,14 @@ export interface RawNotice {
   english: Record<TranslationVersion, string>;
   error: { type: string; korean_span: string; correct_span: string; flawed_span: string };
   scenario: string;
+  /** What getting the translation checked would cost; shown next to the "Get it checked" option. */
+  check_cost?: string;
   key_question: {
     question: string;
+    /** Must start with "Yes" or "No"; that word is the correct answer. */
     answer: string;
+    /** Must start with the opposite word: the answer someone trusting the flawed translation gives. */
     answer_if_trusting_flawed: string;
-    choices?: RawChoice[];
   };
 }
 
@@ -109,6 +106,11 @@ export function phraseToRange(t: Tokenized, text: string, phrase: string, occurr
 
 // ---------- Building ----------
 
+function yesNo(answer: string): 'Yes' | 'No' | null {
+  const m = answer.trim().match(/^(yes|no)\b/i);
+  return m ? (m[1].toLowerCase() === 'yes' ? 'Yes' : 'No') : null;
+}
+
 export const PENDING: StimulusExplanations = { backtranslation: null, rationale: null, qe: null, alignment: null };
 
 export interface BuildResult {
@@ -160,9 +162,17 @@ export function buildStimulus(
     }
   }
 
-  const choices = notice.key_question.choices ?? [];
-  if (!choices.some((c) => c.key === 'correct') || !choices.some((c) => c.key === 'flawed'))
-    problems.push(`${notice.id}: key_question.choices needs one "correct" and one "flawed" option`);
+  // The key questions are yes/no: the first word of each answer says which reading "Yes" / "No" reflects.
+  const right = yesNo(notice.key_question.answer);
+  const wrong = yesNo(notice.key_question.answer_if_trusting_flawed);
+  if (!right || !wrong || right === wrong)
+    problems.push(
+      `${notice.id}: key_question.answer and answer_if_trusting_flawed must start with opposite "Yes" / "No"`,
+    );
+  const choices: KeyQuestion['choices'] = [
+    { label: 'Yes', key: right === 'Yes' ? 'correct' : 'flawed' },
+    { label: 'No', key: right === 'No' ? 'correct' : 'flawed' },
+  ];
 
   return {
     problems,
@@ -174,6 +184,7 @@ export function buildStimulus(
       sourceLang: 'Korean',
       title: notice.title_en,
       scenario: notice.scenario,
+      checkCost: notice.check_cost,
       sourceTokens: src.tokens,
       sourceBreaks: src.breaks,
       targetTokens: tgt.tokens,

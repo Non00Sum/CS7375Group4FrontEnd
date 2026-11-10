@@ -20,14 +20,14 @@ URL parameters:
 - `?debug=1`: show pid, condition, and explanation order in the header
 
 ## Flow
-Consent → pre-survey → practice notice (with hints) → 4 notices → post-survey → done (upload + JSON download).
-Each notice: **baseline decision** (translation only) → **reveal** explanations as neutral tabs A–D (all must be opened)
-→ **revised decision** → **comprehension question** (multiple choice) → **rank** on two dimensions with required
+Consent → pre-survey → 4 notices (the first with hints) → post-survey → done (upload + JSON download).
+Each notice: **baseline decision** (rely on it or get it checked; translation only) → **reveal** explanations as neutral tabs A–D (all must be opened)
+→ **revised decision** → **comprehension question** (yes / no / not sure) → **rank** on two dimensions with required
 justifications. The scenario is shown throughout.
 
 ## Where things live
 - `translation-experiment-data/`: **all study content** (notices.json, explanations.json, images/)
-- `src/data/studyConfig.ts`: main set, practice notice, version counterbalancing (pure; used by check-data too)
+- `src/data/studyConfig.ts`: main set, version counterbalancing (pure; used by check-data too)
 - `src/data/buildStimuli.ts`: JSON → `Stimulus` (tokenizing, resolving phrases to token ranges)
 - `src/data/study.ts`: Vite loader (imports the JSON and images) and per-condition stimulus list
 - `src/data/surveys.ts`: draft survey items
@@ -38,7 +38,7 @@ justifications. The scenario is shown throughout.
 - `scripts/check-data.ts`: data validator
 
 ## Saving data (Supabase)
-Every step is uploaded as soon as it's finished (`session_start`, `pre_survey`, each `trial` including practice,
+Every step is uploaded as soon as it's finished (`session_start`, `pre_survey`, each `trial`,
 `post_survey`, `session_complete`), so partial sessions from dropouts are kept. Unsent events wait in a
 localStorage queue and retry with backoff, also after a reload or when the connection comes back. The final
 screen shows "All responses saved" or offers **Retry now**, and **Download data (JSON)** is always available

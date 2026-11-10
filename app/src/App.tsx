@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { SessionRecord, TrialResult } from './types';
-import { practiceStimulus, stimuliForCondition } from './data/study';
+import { stimuliForCondition } from './data/study';
 import { preSurvey, postSurvey } from './data/surveys';
 import { downloadJSON, explanationOrder, initSession, params, saveLocal } from './lib/session';
 import { flush, recordEvent, useSyncStatus, type EventKind } from './lib/sync';
 import { Trial } from './components/Trial';
 import { Survey } from './components/Survey';
 
-type Stage = 'welcome' | 'pre' | 'tutorial' | 'trials' | 'post' | 'done';
-const STAGES: Stage[] = ['welcome', 'pre', 'tutorial', 'trials', 'post', 'done'];
+type Stage = 'welcome' | 'pre' | 'trials' | 'post' | 'done';
+const STAGES: Stage[] = ['welcome', 'pre', 'trials', 'post', 'done'];
 
 export default function App() {
   const [session, setSession] = useState<SessionRecord>(initSession);
@@ -53,8 +53,8 @@ export default function App() {
             translation system. Some translations may contain errors.
           </p>
           <p>
-            For each notice you'll decide whether you would accept the translation, look at several different
-            explanations of it, answer a question about your situation, and rank the explanations. The study takes
+            For each notice you'll decide whether you would rely on the translation or get it checked, look at
+            several different explanations of it, answer a question about your situation, and rank the explanations. The study takes
             about 30 minutes.
           </p>
           <p className="muted small">
@@ -93,20 +93,6 @@ export default function App() {
           onSubmit={(pre) => {
             record('pre_survey', pre);
             setSession((s) => ({ ...s, pre }));
-            setStage('tutorial');
-          }}
-        />
-      )}
-
-      {stage === 'tutorial' && (
-        <Trial
-          key="tutorial"
-          stimulus={practiceStimulus}
-          order={order}
-          tutorial
-          progress="Practice"
-          onComplete={(r) => {
-            addTrial(r);
             setStage('trials');
           }}
         />
@@ -117,6 +103,7 @@ export default function App() {
           key={trials[trialIdx].id}
           stimulus={trials[trialIdx]}
           order={order}
+          hints={trialIdx === 0}
           progress={`Document ${trialIdx + 1} of ${trials.length}`}
           onComplete={(r) => {
             addTrial(r);

@@ -1,9 +1,8 @@
 {
-  "about": "Korean notices for the CS7375 machine-translation study: proposed main set plus backups. Paragraphs are separated by a blank line (\\n\\n). Image paths are relative to this file. key_question.choices are the multiple-choice options shown to participants (shuffled, plus an \"I'm not sure\" option); key = which reading the option reflects: \"correct\" (the true meaning of the Korean) or \"flawed\" (what the flawed translation implies).",
+  "about": "The 4 Korean notices used in the CS7375 machine-translation study (every participant sees all 4). Each has a correct and a flawed English translation. Paragraphs are separated by a blank line (\\n\\n). Image paths are relative to this file. Numbers in the Korean are written in Hangul on purpose.",
   "documents": [
     {
       "id": "p2_med",
-      "set": "main",
       "stakes": "high",
       "setting": "pharmacy",
       "title_ko": "해솔약국 · 복약 안내",
@@ -21,25 +20,15 @@
         "flawed_span": "after breakfast, lunch, and dinner for one week"
       },
       "scenario": "A clinic in Busan prescribed this for an infection. You start it on a Monday and feel better by Friday.",
+      "check_cost": "Getting it checked means calling the clinic, which has a long phone queue and few English-speaking staff.",
       "key_question": {
         "question": "Based on everything you've seen, should you still be taking it on the following Wednesday?",
         "answer": "Yes. The course lasts two weeks.",
-        "answer_if_trusting_flawed": "No. The flawed translation says the course is one week.",
-        "choices": [
-          {
-            "label": "Yes, I should keep taking it",
-            "key": "correct"
-          },
-          {
-            "label": "No, the course is finished",
-            "key": "flawed"
-          }
-        ]
+        "answer_if_trusting_flawed": "No. The flawed translation says the course is one week."
       }
     },
     {
       "id": "p4_med",
-      "set": "main",
       "stakes": "high",
       "setting": "pharmacy",
       "title_ko": "해솔약국 · 복약 안내",
@@ -57,133 +46,15 @@
         "flawed_span": "do not drink alcohol or take sleeping pills with it."
       },
       "scenario": "You have hay fever and picked this up at a pharmacy. You've also caught a cold and bought cold medicine at a convenience store.",
+      "check_cost": "Getting it checked means going back to the pharmacy across town before it closes.",
       "key_question": {
         "question": "Based on everything you've seen, should you avoid taking the cold medicine together with this one?",
         "answer": "Yes. Cold medicines are on the list of things not to take with it.",
-        "answer_if_trusting_flawed": "No warning: the flawed translation lists only alcohol and sleeping pills.",
-        "choices": [
-          {
-            "label": "Yes, I should avoid taking them together",
-            "key": "correct"
-          },
-          {
-            "label": "No, they can be taken together",
-            "key": "flawed"
-          }
-        ]
-      }
-    },
-    {
-      "id": "p1_hotel",
-      "set": "main",
-      "stakes": "low",
-      "setting": "hotel",
-      "title_ko": "바다숲 호텔 · 객실 이용 안내",
-      "title_en": "Badasup Hotel · Room Information",
-      "image": "images/p1_hotel.png",
-      "korean": "체크인은 오후 세 시부터, 체크아웃은 오전 열한 시까지입니다. 수영장에 들어가시기 전에 꼭 샤워를 해 주세요. 수영장은 사 층에 있으며, 오전 일곱 시부터 밤 아홉 시까지 이용하실 수 있습니다. 조식은 삼 층 식당에서 오전 일곱 시부터 열 시까지 제공됩니다.\n\n객실 열쇠는 체크아웃하실 때 일 층 프런트에 반납해 주세요. 와이파이 비밀번호는 객실 책상 위 카드에 적혀 있습니다. 궁금한 점이 있으시면 언제든지 프런트로 전화해 주세요.",
-      "english": {
-        "correct": "Check-in starts at 3 p.m., and check-out is by 11 a.m. Please be sure to shower before entering the pool. The pool is on the fourth floor and is open from 7 a.m. to 9 p.m. Breakfast is served in the third-floor restaurant from 7 a.m. to 10 a.m.\n\nPlease return your room key to the front desk on the first floor when you check out. The Wi-Fi password is written on the card on your room's desk. If you have any questions, feel free to call the front desk at any time.",
-        "flawed": "Check-in starts at 3 p.m., and check-out is by 11 a.m. Please be sure to shower after using the pool. The pool is on the fourth floor and is open from 7 a.m. to 9 p.m. Breakfast is served in the third-floor restaurant from 7 a.m. to 10 a.m.\n\nPlease return your room key to the front desk on the first floor when you check out. The Wi-Fi password is written on the card on your room's desk. If you have any questions, feel free to call the front desk at any time."
-      },
-      "error": {
-        "type": "before/after flip",
-        "korean_span": "수영장에 들어가시기 전에",
-        "correct_span": "shower before entering the pool",
-        "flawed_span": "shower after using the pool"
-      },
-      "scenario": "You're on vacation at this hotel and have just come down to the pool in your swimsuit. The showers are by the pool entrance, and you haven't used them yet.",
-      "key_question": {
-        "question": "Based on everything you've seen, do you need to shower now, or can you shower after your swim?",
-        "answer": "Shower now: the notice asks you to shower before entering the pool.",
-        "answer_if_trusting_flawed": "After your swim: the flawed translation says to shower after using the pool.",
-        "choices": [
-          {
-            "label": "Shower now, before swimming",
-            "key": "correct"
-          },
-          {
-            "label": "Shower after my swim",
-            "key": "flawed"
-          }
-        ]
-      }
-    },
-    {
-      "id": "p6_hotel",
-      "set": "main",
-      "stakes": "low",
-      "setting": "hotel",
-      "title_ko": "노을빛 호텔 · 객실 이용 안내",
-      "title_en": "Noeulbit Hotel · Room Information",
-      "image": "images/p6_hotel.png",
-      "korean": "저희 호텔을 찾아 주셔서 감사합니다. 한 객실에는 두 분까지만 숙박하실 수 있습니다. 체크인은 오후 세 시부터, 체크아웃은 오전 열한 시까지입니다.\n\n주차장은 지하 일 층에 있으며, 숙박하시는 동안 무료로 이용하실 수 있습니다. 조식은 일 층 식당에서 오전 일곱 시부터 열 시까지 제공됩니다. 객실 내에서는 금연입니다. 와이파이는 호텔 어디에서나 무료로 이용하실 수 있습니다. 엘리베이터는 로비 왼쪽에 있습니다. 수건이 더 필요하시면 프런트로 전화해 주세요.",
-      "english": {
-        "correct": "Thank you for choosing our hotel. Each room can accommodate only two guests. Check-in starts at 3 p.m., and check-out is by 11 a.m.\n\nParking is on basement level one and is free for the length of your stay. Breakfast is served in the first-floor restaurant from 7 a.m. to 10 a.m. Smoking is not permitted in the rooms. Free Wi-Fi is available throughout the hotel. The elevators are to the left of the lobby. If you need extra towels, please call the front desk.",
-        "flawed": "Thank you for choosing our hotel. Each room can accommodate two guests, or three if one is a child. Check-in starts at 3 p.m., and check-out is by 11 a.m.\n\nParking is on basement level one and is free for the length of your stay. Breakfast is served in the first-floor restaurant from 7 a.m. to 10 a.m. Smoking is not permitted in the rooms. Free Wi-Fi is available throughout the hotel. The elevators are to the left of the lobby. If you need extra towels, please call the front desk."
-      },
-      "error": {
-        "type": "addition (expansion with impact)",
-        "korean_span": "두 분까지만",
-        "correct_span": "Each room can accommodate only two guests.",
-        "flawed_span": "Each room can accommodate two guests, or three if one is a child."
-      },
-      "scenario": "You are booking one room at this hotel for yourself, your partner, and your seven-year-old child.",
-      "key_question": {
-        "question": "Based on everything you've seen, can all three of you stay in one room?",
-        "answer": "No. Each room is limited to two guests.",
-        "answer_if_trusting_flawed": "Yes. The flawed translation allows a third guest if one is a child.",
-        "choices": [
-          {
-            "label": "No, only two guests are allowed per room",
-            "key": "correct"
-          },
-          {
-            "label": "Yes, a child can stay as the third guest",
-            "key": "flawed"
-          }
-        ]
-      }
-    },
-    {
-      "id": "p1_med",
-      "set": "backup",
-      "stakes": "high",
-      "setting": "pharmacy",
-      "title_ko": "해솔약국 · 복약 안내",
-      "title_en": "Haesol Pharmacy · Medication Guide",
-      "image": "images/p1_med.png",
-      "korean": "이 약은 이부프로펜으로, 두통과 근육통을 줄여 주고 열을 내려 줍니다. 한 번에 한 알씩, 하루 세 번, 식후 삼십 분에 드세요. 약은 물 한 컵과 함께 삼키시고, 씹거나 부수지 마세요.\n\n복용 중에는 술을 드시지 마세요. 속이 쓰리거나 변이 검게 나오면 복용을 멈추고 병원에 연락하세요. 사흘이 지나도 열이 내리지 않으면 다시 진료를 받으세요. 약은 실온에 보관하세요.",
-      "english": {
-        "correct": "This medicine is ibuprofen, which relieves headaches and muscle pain and brings down fever. Take one tablet per dose, three times a day, 30 minutes after meals. Swallow the tablet with a glass of water; do not chew or crush it.\n\nDo not drink alcohol while taking this medicine. If you get heartburn or your stools turn black, stop taking it and contact your doctor. If your fever has not gone down after three days, see a doctor again. Store the medicine at room temperature.",
-        "flawed": "This medicine is ibuprofen, which relieves headaches and muscle pain and brings down fever. Take one tablet per dose, three times a day, 30 minutes before meals. Swallow the tablet with a glass of water; do not chew or crush it.\n\nDo not drink alcohol while taking this medicine. If you get heartburn or your stools turn black, stop taking it and contact your doctor. If your fever has not gone down after three days, see a doctor again. Store the medicine at room temperature."
-      },
-      "error": {
-        "type": "before/after flip",
-        "korean_span": "식후 삼십 분에",
-        "correct_span": "30 minutes after meals",
-        "flawed_span": "30 minutes before meals"
-      },
-      "scenario": "You bought this medicine at a pharmacy in Seoul for a bad headache. It's morning, you haven't eaten yet, and you plan to have breakfast in about half an hour.",
-      "key_question": {
-        "question": "Based on everything you've seen, should you take a tablet now, or wait until after you eat?",
-        "answer": "Wait until after you eat: take it 30 minutes after a meal.",
-        "answer_if_trusting_flawed": "Take it now: the flawed translation says 30 minutes before meals.",
-        "choices": [
-          {
-            "label": "Wait until after I eat",
-            "key": "correct"
-          },
-          {
-            "label": "Take a tablet now",
-            "key": "flawed"
-          }
-        ]
+        "answer_if_trusting_flawed": "No warning: the flawed translation lists only alcohol and sleeping pills."
       }
     },
     {
       "id": "p3_hotel",
-      "set": "backup",
       "stakes": "low",
       "setting": "hotel",
       "title_ko": "솔바람 게스트하우스 · 이용 안내",
@@ -201,20 +72,37 @@
         "flawed_span": "If you have booked in advance, you can check in without showing identification."
       },
       "scenario": "You booked this guesthouse online weeks ago. When you arrive, you realize your passport and ID are in a bag you left at a friend's place.",
+      "check_cost": "Getting it checked means calling the guesthouse owner late at night, who may not pick up.",
       "key_question": {
         "question": "Based on everything you've seen, can you check in without ID?",
         "answer": "No. You cannot check in without ID, even with a booking.",
-        "answer_if_trusting_flawed": "Yes. The flawed translation says a booking lets you check in without ID.",
-        "choices": [
-          {
-            "label": "No, I can't check in without ID",
-            "key": "correct"
-          },
-          {
-            "label": "Yes, my booking is enough",
-            "key": "flawed"
-          }
-        ]
+        "answer_if_trusting_flawed": "Yes. The flawed translation says a booking lets you check in without ID."
+      }
+    },
+    {
+      "id": "p6_hotel",
+      "stakes": "low",
+      "setting": "hotel",
+      "title_ko": "노을빛 호텔 · 객실 이용 안내",
+      "title_en": "Noeulbit Hotel · Room Information",
+      "image": "images/p6_hotel.png",
+      "korean": "저희 호텔을 찾아 주셔서 감사합니다. 한 객실에는 두 명까지만 숙박하실 수 있습니다. 체크인은 오후 세 시부터, 체크아웃은 오전 열한 시까지입니다.\n\n주차장은 지하 일 층에 있으며, 숙박하시는 동안 무료로 이용하실 수 있습니다. 조식은 일 층 식당에서 오전 일곱 시부터 열 시까지 제공됩니다. 객실 내에서는 금연입니다. 와이파이는 호텔 어디에서나 무료로 이용하실 수 있습니다. 엘리베이터는 로비 왼쪽에 있습니다. 수건이 더 필요하시면 프런트로 전화해 주세요.",
+      "english": {
+        "correct": "Thank you for choosing our hotel. Each room can accommodate only two guests. Check-in starts at 3 p.m., and check-out is by 11 a.m.\n\nParking is on basement level one and is free for the length of your stay. Breakfast is served in the first-floor restaurant from 7 a.m. to 10 a.m. Smoking is not permitted in the rooms. Free Wi-Fi is available throughout the hotel. The elevators are to the left of the lobby. If you need extra towels, please call the front desk.",
+        "flawed": "Thank you for choosing our hotel. Each room can accommodate two guests, or three if one is a child. Check-in starts at 3 p.m., and check-out is by 11 a.m.\n\nParking is on basement level one and is free for the length of your stay. Breakfast is served in the first-floor restaurant from 7 a.m. to 10 a.m. Smoking is not permitted in the rooms. Free Wi-Fi is available throughout the hotel. The elevators are to the left of the lobby. If you need extra towels, please call the front desk."
+      },
+      "error": {
+        "type": "addition (expansion with impact)",
+        "korean_span": "두 명까지만",
+        "correct_span": "Each room can accommodate only two guests.",
+        "flawed_span": "Each room can accommodate two guests, or three if one is a child."
+      },
+      "scenario": "You are booking one room at this hotel for yourself, your partner, and your seven-year-old child.",
+      "check_cost": "Getting it checked means emailing the hotel and waiting a day for a reply, while the last rooms at this price sell out.",
+      "key_question": {
+        "question": "Based on everything you've seen, can all three of you stay in one room?",
+        "answer": "No. Each room is limited to two guests.",
+        "answer_if_trusting_flawed": "Yes. The flawed translation allows a third guest if one is a child."
       }
     }
   ]

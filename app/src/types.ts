@@ -35,7 +35,7 @@ export interface StimulusExplanations {
 
 export interface KeyQuestion {
   question: string;
-  /** Options; `key` says which reading each reflects. Never shown to participants. */
+  /** Yes / No, derived from key_question.answer; `key` says which reading each reflects (never shown). */
   choices: { label: string; key: TranslationVersion }[];
 }
 
@@ -50,6 +50,8 @@ export interface Stimulus {
   title: string;
   /** The situation the participant imagines being in. */
   scenario: string;
+  /** What getting the translation checked would cost in this situation (shown next to "Get it checked"). */
+  checkCost?: string;
   sourceTokens: string[];
   /** Token indices that start a new paragraph. */
   sourceBreaks: number[];
@@ -66,6 +68,7 @@ export interface Stimulus {
   explanationsMock: boolean;
 }
 
+/** Shown to participants as "Rely on this translation" (accept) vs. "Get it checked" (reject). */
 export type Decision = 'accept' | 'reject';
 
 export interface DecisionRecord {
@@ -112,7 +115,10 @@ export interface TrialResult {
   version: TranslationVersion;
   stakes: 'low' | 'high';
   isFlawed: boolean;
+  /** Always false now (there is no separate practice round); kept so the analysis views still work. */
   tutorial: boolean;
+  /** True on the session's first notice, which shows "how to read this" hints. */
+  hints: boolean;
   explanationOrder: ExplanationType[];
   baseline: DecisionRecord;
   revised: DecisionRecord;

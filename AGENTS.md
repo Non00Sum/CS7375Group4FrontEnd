@@ -6,7 +6,7 @@ Study web app for a CS 7375 HCXAI project. See [README.md](README.md) for the st
 - `app/`: the React + TypeScript + Vite app. Run all commands from here.
 - `app/translation-experiment-data/`: **all study content** (notices, explanations, images). Format spec:
   [`app/translation-experiment-data/README.md`](app/translation-experiment-data/README.md).
-- `app/src/data/studyConfig.ts`: which notices are used, the practice notice, and version counterbalancing.
+- `app/src/data/studyConfig.ts`: which notices are used, and version counterbalancing.
 - `app/supabase/schema.sql`: database table, access rules, analysis views.
 
 ## Commands (in `app/`)

@@ -74,8 +74,10 @@ textarea, input[type=text] { width: 100%; font: inherit; padding: 8px; border: 1
 .q { font-weight: 600; margin: 0 0 8px; }
 .q.small { font-weight: 500; margin-top: 16px; }
 .choice-row { display: flex; gap: 10px; flex-wrap: wrap; }
-.choice { padding: 10px 18px; }
-.choice.selected { background: var(--accent-soft); border-color: var(--accent); font-weight: 600; }
+.choice { padding: 10px 18px; flex: 1 1 220px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; }
+.choice.selected { background: var(--accent-soft); border-color: var(--accent); }
+.choice.selected .choice-label { font-weight: 600; }
+.choice-note { font-size: 0.85em; color: var(--muted); font-weight: 400; }
 .likert { display: flex; flex-wrap: wrap; gap: 6px; }
 .likert label { display: flex; align-items: center; gap: 4px; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: .9rem; }
 .likert label.selected { background: var(--accent-soft); border-color: var(--accent); }

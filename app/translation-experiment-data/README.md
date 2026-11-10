@@ -6,7 +6,8 @@ so editing them (and pushing) is all it takes to change the study.
 ```
 translation-experiment-data/
 ├── notices.json        Korean notices, correct + flawed English, scenario, comprehension question  (Eric)
-├── explanations.json   precomputed explanations per notice and translation version                 (Kuan)
+├── explanations.json   precomputed explanations per notice and translation version (optional while  (Kuan)
+│                       not yet generated: everything shows as "pending")
 └── images/             the notices as participants would see them ("View original")
 ```
 
@@ -14,7 +15,7 @@ translation-experiment-data/
 unknown ids, missing images, and prints which explanations exist and what each condition shows.
 The site still loads with bad data (bad items are skipped), so this check is the safety net.
 
-Which notices are used (main set, practice) is set in [`../src/data/studyConfig.ts`](../src/data/studyConfig.ts).
+Which notices are used (and in what order) is set in [`../src/data/studyConfig.ts`](../src/data/studyConfig.ts).
 
 ---
 
@@ -26,7 +27,6 @@ Which notices are used (main set, practice) is set in [`../src/data/studyConfig.
   "documents": [
     {
       "id": "p2_med",                       // unique; referenced by explanations.json and studyConfig.ts
-      "set": "main",                        // "main" | "backup" (informational; studyConfig decides use)
       "stakes": "high",                     // "high" | "low"; versions are balanced within each level
       "setting": "pharmacy",
       "title_ko": "해솔약국 · 복약 안내",
@@ -44,23 +44,25 @@ Which notices are used (main set, practice) is set in [`../src/data/studyConfig.
         "flawed_span": "…"                  // must appear in english.flawed
       },
       "scenario": "…",                      // shown to the participant as "Your situation"
+      "check_cost": "Getting it checked means …",  // shown under the "Get it checked" option (required)
       "key_question": {
-        "question": "…",                    // asked after the explanations
-        "answer": "…",                      // researcher notes (not shown)
-        "answer_if_trusting_flawed": "…",   // researcher notes (not shown)
-        "choices": [                        // shown shuffled, plus an "I'm not sure" option
-          { "label": "Yes, I should keep taking it", "key": "correct" },
-          { "label": "No, the course is finished",   "key": "flawed" }
-        ]
+        "question": "…",                    // a yes/no question, asked after the explanations
+        "answer": "Yes. …",                 // must start with "Yes" or "No": the correct answer
+        "answer_if_trusting_flawed": "No. …" // must start with the opposite word
       }
     }
   ]
 }
 ```
 
-`choices` needs exactly the readings the question is designed to separate: one option with
-`"key": "correct"` (the true meaning of the Korean) and one with `"key": "flawed"` (what the flawed translation
-implies). Keep labels short and neutral, without explanations like "the translation says…", since participants see them.
+**Key question.** Participants answer *Yes*, *No* (shown in random order) or *I'm not sure*. The app reads
+the first word of `answer` to know which of Yes/No reflects the true meaning of the Korean, and the first word
+of `answer_if_trusting_flawed` for the flawed reading; they must be opposites. The rest of both strings is
+researcher notes and isn't shown.
+
+**Decision.** Before and after the explanations, participants choose *Rely on this translation* or *Get it
+checked*, with `check_cost` shown under the second option so checking isn't free. These are stored as
+`accept` / `reject`.
 
 ---
 

@@ -3,6 +3,8 @@ import type { Decision, DecisionRecord } from '../types';
 
 interface Props {
   prompt: string;
+  /** Shown under "Get it checked" so the participant weighs what checking would cost. */
+  checkCost?: string;
   disabled?: boolean;
   disabledReason?: string;
   onSubmit: (r: DecisionRecord) => void;
@@ -10,7 +12,7 @@ interface Props {
 
 const CONF_LABELS = ['1 Not at all', '2', '3', '4', '5', '6', '7 Completely'];
 
-export function DecisionForm({ prompt, disabled, disabledReason, onSubmit }: Props) {
+export function DecisionForm({ prompt, checkCost, disabled, disabledReason, onSubmit }: Props) {
   const [decision, setDecision] = useState<Decision | null>(null);
   const [confidence, setConfidence] = useState<number | null>(null);
 
@@ -25,7 +27,8 @@ export function DecisionForm({ prompt, disabled, disabledReason, onSubmit }: Pro
             onClick={() => setDecision(d)}
             disabled={disabled}
           >
-            {d === 'accept' ? '✓ Accept translation' : '✗ Reject translation'}
+            <span className="choice-label">{d === 'accept' ? 'Rely on this translation' : 'Get it checked'}</span>
+            {d === 'reject' && checkCost && <span className="choice-note">{checkCost}</span>}
           </button>
         ))}
       </div>

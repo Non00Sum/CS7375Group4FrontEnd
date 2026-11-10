@@ -33,7 +33,8 @@ const MIN_JUSTIFICATION = 15;
 interface Props {
   stimulus: Stimulus;
   order: ExplanationType[];
-  tutorial?: boolean;
+  /** Show "how to read this" hints (the session's first notice). */
+  hints?: boolean;
   progress: string;
   onComplete: (r: TrialResult) => void;
 }
@@ -47,7 +48,7 @@ const STEP_LABELS: Record<Step, string> = {
   rank: 'Rank',
 };
 
-export function Trial({ stimulus, order, tutorial, progress, onComplete }: Props) {
+export function Trial({ stimulus, order, hints, progress, onComplete }: Props) {
   const labels = order.map((_, i) => LABELS[i]);
   const [step, setStep] = useState<Step>('baseline');
   const [baseline, setBaseline] = useState<DecisionRecord | null>(null);
@@ -121,7 +122,8 @@ export function Trial({ stimulus, order, tutorial, progress, onComplete }: Props
       version: stimulus.version,
       stakes: stimulus.stakes,
       isFlawed: stimulus.isFlawed,
-      tutorial: !!tutorial,
+      tutorial: false,
+      hints: !!hints,
       explanationOrder: order,
       baseline: baseline!,
       revised: revised!,
@@ -157,13 +159,13 @@ export function Trial({ stimulus, order, tutorial, progress, onComplete }: Props
         <p className="muted small">You can't read Korean, so you're relying on the machine translation.</p>
       </div>
 
-      {tutorial && step === 'baseline' && (
+      {hints && step === 'baseline' && (
         <p className="hint">
-          💡 Practice round. Read your situation above, then decide using only the notice and its translation. Use
+          💡 Read your situation above, then decide using only the notice and its translation. Use
           “View original” at any time to see the notice itself; scroll, and zoom with the +/− buttons or Ctrl + scroll.
         </p>
       )}
-      {tutorial && step === 'question' && (
+      {hints && step === 'question' && (
         <p className="hint">💡 Answer based on everything you've seen: the translation and the explanations.</p>
       )}
 
@@ -196,7 +198,7 @@ export function Trial({ stimulus, order, tutorial, progress, onComplete }: Props
           {active === null ? (
             <p className="muted">Open each explanation using the tabs above.</p>
           ) : (
-            <ExplanationPanel type={order[active]} stimulus={stimulus} tutorial={tutorial} />
+            <ExplanationPanel type={order[active]} stimulus={stimulus} tutorial={hints} />
           )}
         </div>
       )}
@@ -204,7 +206,8 @@ export function Trial({ stimulus, order, tutorial, progress, onComplete }: Props
       {step === 'baseline' && (
         <DecisionForm
           key="baseline"
-          prompt="Based only on the translation, would you accept it as an accurate translation of the original?"
+          prompt="Based only on the translation, would you rely on it, or get it checked?"
+          checkCost={stimulus.checkCost}
           onSubmit={(r) => {
             setBaseline(r);
             setStep('reveal');
@@ -215,7 +218,8 @@ export function Trial({ stimulus, order, tutorial, progress, onComplete }: Props
       {step === 'reveal' && (
         <DecisionForm
           key="revised"
-          prompt="Now that you have seen the explanations, would you accept this translation?"
+          prompt="Now that you have seen the explanations, would you rely on this translation, or get it checked?"
+          checkCost={stimulus.checkCost}
           disabled={!allViewed}
           disabledReason={`Please open every explanation first (${viewed.size}/${order.length} viewed).`}
           onSubmit={(r) => {
@@ -276,7 +280,7 @@ export function Trial({ stimulus, order, tutorial, progress, onComplete }: Props
             </p>
           )}
           <button className="primary" disabled={!rankDone} onClick={finish}>
-            {tutorial ? 'Finish practice' : 'Next document'}
+            Next document
           </button>
         </div>
       )}

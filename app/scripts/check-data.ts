@@ -10,7 +10,7 @@ import {
   type RawExplanationsFile,
   type RawNoticesFile,
 } from '../src/data/buildStimuli.ts';
-import { MAIN_SET, PRACTICE, assignVersions } from '../src/data/studyConfig.ts';
+import { MAIN_SET, assignVersions } from '../src/data/studyConfig.ts';
 
 const dir = join(dirname(fileURLToPath(import.meta.url)), '..', 'translation-experiment-data');
 const errors: string[] = [];
@@ -26,7 +26,7 @@ for (const n of notices.documents) {
   const at = `notices.json ${n.id}`;
   if (ids.has(n.id)) errors.push(`${at}: duplicate id`);
   ids.add(n.id);
-  for (const f of ['korean', 'scenario', 'title_en'] as const) if (!n[f]?.trim()) errors.push(`${at}: missing ${f}`);
+  for (const f of ['korean', 'scenario', 'title_en', 'check_cost'] as const) if (!n[f]?.trim()) errors.push(`${at}: missing ${f}`);
   if (!n.english?.correct || !n.english?.flawed) errors.push(`${at}: needs english.correct and english.flawed`);
   else if (n.english.correct === n.english.flawed) errors.push(`${at}: correct and flawed translations are identical`);
   if (!['high', 'low'].includes(n.stakes)) errors.push(`${at}: stakes must be "high" or "low"`);
@@ -39,7 +39,7 @@ for (const n of notices.documents) {
   if (!n.image) warnings.push(`${at}: no image ("View full document" will be hidden)`);
   for (const v of ['correct', 'flawed'] as const) {
     const { problems } = buildStimulus(n, v, explanations.explanations[n.id]?.[v]);
-    errors.push(...problems.map((p) => `explanations.json ${p}`));
+    errors.push(...problems.map((p) => (p.includes('key_question') ? `notices.json ${p}` : `explanations.json ${p}`)));
   }
 }
 
@@ -48,7 +48,7 @@ for (const [id, byVersion] of Object.entries(explanations.explanations)) {
   for (const v of Object.keys(byVersion)) if (v !== 'correct' && v !== 'flawed') errors.push(`explanations.json ${id}: unknown version "${v}"`);
 }
 
-for (const id of [...MAIN_SET, PRACTICE.id]) if (!ids.has(id)) errors.push(`studyConfig.ts: "${id}" is not in notices.json`);
+for (const id of MAIN_SET) if (!ids.has(id)) errors.push(`studyConfig.ts: "${id}" is not in notices.json`);
 
 // Coverage table: which explanations exist for the documents participants will see.
 const cell = (id: string, v: 'correct' | 'flawed') => {
@@ -58,11 +58,8 @@ const cell = (id: string, v: 'correct' | 'flawed') => {
   return `${have}${e._mock ? ' (mock)' : ''}`;
 };
 console.log('Explanation coverage  (B=back-translation R=rationale Q=quality A=alignment)\n');
-console.log('notice      role       correct          flawed');
-for (const id of [...MAIN_SET, PRACTICE.id]) {
-  const role = id === PRACTICE.id ? 'practice' : 'main';
-  console.log(`${id.padEnd(11)} ${role.padEnd(10)} ${cell(id, 'correct').padEnd(16)} ${role === 'practice' && PRACTICE.version === 'correct' ? '(not used)' : cell(id, 'flawed')}`);
-}
+console.log('notice      correct          flawed');
+for (const id of MAIN_SET) console.log(`${id.padEnd(11)} ${cell(id, 'correct').padEnd(16)} ${cell(id, 'flawed')}`);
 
 // What each condition shows (order rotates by condition; ✗ = flawed translation).
 console.log('\nConditions (document order; ✗ flawed, ✓ correct)');
@@ -77,8 +74,9 @@ if (MAIN_SET.every((id) => stakesOf.has(id))) {
 }
 
 if (warnings.length) console.log(`\n${warnings.length} warning(s):\n  ${warnings.join('\n  ')}`);
-if (errors.length) {
-  console.error(`\n✗ ${errors.length} error(s):\n  ${errors.join('\n  ')}`);
+const uniq = [...new Set(errors)];
+if (uniq.length) {
+  console.error(`\n✗ ${uniq.length} error(s):\n  ${uniq.join('\n  ')}`);
   process.exit(1);
 }
 console.log(`\n✓ Data OK: ${notices.documents.length} notices`);
