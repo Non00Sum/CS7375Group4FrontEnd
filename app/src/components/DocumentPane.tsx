@@ -31,8 +31,8 @@ export function DocumentPane({ stimulus, overlay, onAlignmentHover, onViewOrigin
   const [showTranscript, setShowTranscript] = useState(!stimulus.original);
   const { alignment, qe } = stimulus.explanations;
   const links = useMemo(() => alignment ?? [], [alignment]);
-  // Overlays only apply once that explanation exists (null = still pending).
-  const showAlign = overlay === 'alignment' && alignment !== null;
+  // Dictionary entries remain available in Word matching while alignment data is pending.
+  const showAlign = overlay === 'alignment';
   const showQE = overlay === 'qe' && qe !== null;
   const selection = showAlign ? pinned ?? hovered ?? focused : null;
   const selectedLinks = useMemo(() => matchingLinks(links, selection), [links, selection]);
@@ -190,7 +190,7 @@ export function DocumentPane({ stimulus, overlay, onAlignmentHover, onViewOrigin
             if (span) cls.push(`qe-${qeLevel(span.score)}`);
             if (showAlign) {
               if (isHot('tgt', i)) cls.push('hot');
-              if (!aligned.has(i)) cls.push('unaligned');
+              if (alignment !== null && !aligned.has(i)) cls.push('unaligned');
             }
             const title = span
               ? `Estimated quality: ${Math.round(span.score * 100)}/100${span.note ? ` — ${span.note}` : ''}`
@@ -217,7 +217,7 @@ export function DocumentPane({ stimulus, overlay, onAlignmentHover, onViewOrigin
           />
         )}
         {overlay === 'alignment' && alignment === null && (
-          <p className="word-match-hint muted small">Source matches are not available for this notice yet.</p>
+          <p className="word-match-hint muted small">Source matches are not available for this notice yet. Hover or focus on a word in either language to read its dictionary entry.</p>
         )}
       </section>
     </div>

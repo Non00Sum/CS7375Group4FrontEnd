@@ -9,7 +9,7 @@ const TUTORIAL_HINTS: Record<ExplanationType, string> = {
   rationale: 'This is a written explanation, produced by an AI model, of how well the translation matches the original.',
   qe: 'Parts of the translation are colored by how likely they are to contain an error. Hover over colored text to see details.',
   alignment:
-    'Hover or focus on words in either text to open an attached glossary with the linked Korean phrase and its paragraph. Click or tap to pin it. A dashed underline means no source match is available in the supplied word mappings.',
+    'Hover or focus on words in either text to open dictionary meanings in English for both languages, alongside the linked Korean phrase and its paragraph. Click or tap to pin it. A dashed underline means no source match is available in the supplied word mappings.',
 };
 
 interface Props {
@@ -25,7 +25,9 @@ export function ExplanationPanel({ type, stimulus, tutorial }: Props) {
   if (ex[type] === null)
     return (
       <div className="explanation">
-        <p className="pending">⏳ This explanation hasn't been generated for this document yet.</p>
+        <p className="pending">{type === 'alignment'
+          ? 'Source-word matching has not been generated for this document yet. Hover or focus on either text above to read dictionary entries.'
+          : "⏳ This explanation hasn't been generated for this document yet."}</p>
       </div>
     );
 
@@ -93,6 +95,7 @@ export function ExplanationPanel({ type, stimulus, tutorial }: Props) {
           <h4>Word correspondence</h4>
           <p>
             Hover or focus on a word above to highlight its matches and open its glossary beside the word.
+            The glossary includes English definitions of English and Korean headwords, with more meanings available to expand.
             Click or tap to pin it. Close the glossary, press Escape, or click outside to dismiss it.
           </p>
           <p className="legend">

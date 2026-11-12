@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { AlignLink, Stimulus, TokenRange } from '../types';
+import { DictionaryEntries } from './DictionaryEntries';
 
 export interface WordSelection {
   side: 'src' | 'tgt';
@@ -130,7 +131,17 @@ export function SourceMatch({ id, stimulus, selection, links, pinned, onClear, o
           <button type="button" className="glossary-close" aria-label="Close glossary" onClick={onClear}>×</button>
         </div>
         <div id={`${id}-content`} role="status" aria-live="polite" aria-atomic="true">
-          {uniqueLinks.length === 0 ? (
+          <DictionaryEntries
+            key={`${selection.side}:${selection.index}`}
+            stimulus={stimulus}
+            side={selection.side}
+            tokenIndex={selection.index}
+            links={links}
+          />
+          <h5 className="source-match-section-title">Source correspondence</h5>
+          {stimulus.explanations.alignment === null ? (
+            <p className="muted small">Source-word matching has not been generated for this notice yet. The dictionary above defines the hovered word independently.</p>
+          ) : uniqueLinks.length === 0 ? (
             <>
               <p className="source-match-empty">No {selection.side === 'tgt' ? 'source' : 'translation'} match available for “{tokens[selection.index]}”.</p>
               <p className="muted small">The supplied word mappings do not link this word to the other text. This alone does not mean the translation is wrong.</p>
